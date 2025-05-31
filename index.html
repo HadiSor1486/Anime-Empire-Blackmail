@@ -8,7 +8,7 @@
 **╚═════╝    ╚═╝       ╚══════╝ ╚═════╝ ╚═╝  ╚═╝                           **
 **                                                                         **
 **                                                                         **
-**By SOR: http://aminoapps.com/p/ip6gmk    يويلي على الحشريين يويلي      **
+**By SOR: http://aminoapps.com/p/ip6gmk    يويلي على الحشريين يويلي               **
 **                                                                         **
 **All rights reserved. This code may not be reproduced                     **
 **or distributed without permission from the author.                       **
@@ -1398,61 +1398,89 @@
 
 
         // Firebase Storage operations
-        async function createStoryData(authorName, storyText, timestamp) {
-            const storyData = {
-                authorName: sanitizeText(authorName),
-                storyText: sanitizeText(storyText),
-                timestamp: timestamp,
-                createdAt: new Date().toISOString()
-            };
-            
-            return JSON.stringify(storyData, null, 2);
-        }
+async function createStoryData(authorName, storyText, timestamp) {
+    const storyData = {
+        authorName: sanitizeText(authorName),
+        storyText: sanitizeText(storyText),
+        timestamp: timestamp,
+        createdAt: new Date().toISOString()
+    };
+    
+    return JSON.stringify(storyData, null, 2);
+}
+
+function sanitizeUsername(username) {
+    if (!username || username.trim() === '') {
+        return 'anonymous'; // ✅ No unique ID, just 'anonymous'
+    }
+    
+    // Remove invalid characters for Firebase Storage paths
+    let sanitized = username
+        .trim()
+        .replace(/[\\?#[\]]/g, '') // Remove forbidden characters
+        .replace(/[<>:"|*]/g, '') // Remove additional problematic characters
+        .replace(/\s+/g, '_') // Replace spaces with underscores
+        .replace(/_{2,}/g, '_') // Replace multiple underscores with single
+        .replace(/^_|_$/g, ''); // Remove leading/trailing underscores
+    
+    // Ensure it's not empty after sanitization
+    if (sanitized === '') {
+        sanitized = 'user'; // ✅ No unique ID, just 'user'
+    }
+    
+    // ✅ REMOVED: No timestamp suffix for duplicate usernames
+    // sanitized += '_' + Date.now().toString(36);
+    
+    return sanitized;
+}
 
         async function uploadStory(authorName, storyText, profileImageFile) {
-            const timestamp = Date.now().toString();
-            const storyId = generateUniqueId();
-            const userFolder = `${STORIES_FOLDER}/${storyId}`;
-            
-            try {
-                // Create story data
-                const storyDataText = await createStoryData(authorName, storyText, timestamp);
-                const storyDataBlob = new Blob([storyDataText], { type: 'text/plain' });
-                
-                // Upload story data
-                const storyDataRef = ref(storage, `${userFolder}/story.txt`);
-                const storyDataSnapshot = await uploadBytes(storyDataRef, storyDataBlob);
-                
-                // Upload profile image if provided
-                let profileImageUrl = null;
-                if (profileImageFile) {
-                    // Validate image file
-                    if (!profileImageFile.type.startsWith('image/')) {
-                        throw new Error('يرجى رفع ملف صورة صحيح');
-                    }
-                    
-                    // Check file size (max 5MB)
-                    if (profileImageFile.size > 5 * 1024 * 1024) {
-                        throw new Error('حجم الصورة كبير جداً، يرجى اختيار صورة أصغر من 5 ميجابايت');
-                    }
-                    
-                    const imageExtension = profileImageFile.name.split('.').pop().toLowerCase();
-                    const profileImageRef = ref(storage, `${userFolder}/profile.${imageExtension}`);
-                    const profileImageSnapshot = await uploadBytes(profileImageRef, profileImageFile);
-                    profileImageUrl = await getDownloadURL(profileImageSnapshot.ref);
-                }
-                
-                return {
-                    success: true,
-                    storyId: storyId,
-                    profileImageUrl: profileImageUrl
-                };
-                
-            } catch (error) {
-                console.error('Error uploading story:', error);
-                throw error;
+    const timestamp = Date.now().toString();
+    const storyId = generateUniqueId();
+    
+    // ✅ Use sanitized username for folder name instead of random ID
+    const sanitizedUsername = sanitizeUsername(authorName);
+    const userFolder = `${STORIES_FOLDER}/${sanitizedUsername}`;
+    
+    try {
+        // Create story data
+        const storyDataText = await createStoryData(authorName, storyText, timestamp);
+        const storyDataBlob = new Blob([storyDataText], { type: 'text/plain' });
+        
+        // Upload story data
+        const storyDataRef = ref(storage, `${userFolder}/story.txt`);
+        const storyDataSnapshot = await uploadBytes(storyDataRef, storyDataBlob);
+        
+        // Upload profile image if provided
+        let profileImageUrl = null;
+        if (profileImageFile) {
+            // Validate image file
+            if (!profileImageFile.type.startsWith('image/')) {
+                throw new Error('يرجى رفع ملف صورة صحيح');
             }
+            
+            // Check file size (max 5MB)
+            if (profileImageFile.size > 5 * 1024 * 1024) {
+                throw new Error('حجم الصورة كبير جداً، يرجى اختيار صورة أصغر من 5 ميجابايت');
+            }
+            
+            const imageExtension = profileImageFile.name.split('.').pop().toLowerCase();
+            const profileImageRef = ref(storage, `${userFolder}/profile.${imageExtension}`);
+            const profileImageSnapshot = await uploadBytes(profileImageRef, profileImageFile);
+            profileImageUrl = await getDownloadURL(profileImageSnapshot.ref);
         }
+        
+        return {
+            success: true,
+            storyId: sanitizedUsername, // Return sanitized username as ID
+            profileImageUrl: profileImageUrl
+        };
+        
+    } catch (error) {
+        console.error('Error uploading story:', error);
+        throw error;
+    }
+}
 
         async function loadStories() {
             try {
