@@ -8,7 +8,7 @@
 **╚═════╝    ╚═╝       ╚══════╝ ╚═════╝ ╚═╝  ╚═╝                           **
 **                                                                         **
 **                                                                         **
-**By SOR: http://aminoapps.com/p/ip6gmk    يويلي على الحشريين يويلي               **
+**By SOR: http://aminoapps.com/p/ip6gmk    يويلي على الحشريين يويلي      **
 **                                                                         **
 **All rights reserved. This code may not be reproduced                     **
 **or distributed without permission from the author.                       **
@@ -414,6 +414,50 @@
             pointer-events: none;
         }
 
+
+        .story-blackmailer-links {
+    background: #fff3cd;
+    border: 2px solid #ffc107;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}
+
+.story-blackmailer-title {
+    font-weight: 700;
+    color: #856404;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.story-blackmailer-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.story-blackmailer-item {
+    background: white;
+    padding: 0.5rem;
+    margin: 0.5rem 0;
+    border-radius: 5px;
+    border-right: 3px solid #ffc107;
+    word-break: break-all;
+}
+
+.story-blackmailer-link {
+    color: #dc3545;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.story-blackmailer-link:hover {
+    text-decoration: underline;
+}
+
         /* Read more/less buttons */
         .read-more-btn, .read-less-btn {
             background: none;
@@ -780,7 +824,7 @@
             background: #f44336;
         }
 
-        /* Privacy Notice Modal */
+        
         .privacy-modal {
             display: block;
             position: fixed;
@@ -1103,7 +1147,7 @@
     </style>
 </head>
 <body>
-    <!-- Privacy Notice Modal -->
+    
     <div id="privacyModal" class="privacy-modal">
         <div class="privacy-content">
             <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj48cGF0aCBkPSJNNjAgMTBsMzAgMjB2NDBsLTMwIDMwLTMwLTMwVjMweiIgZmlsbD0iIzY2N2VlYSIvPjwvc3ZnPg==" class="privacy-shield-logo" alt="Logo">
@@ -1198,6 +1242,14 @@
                     <label class="form-label">قصتك</label>
                     <textarea id="storyText" class="form-textarea" placeholder="شارك تجربتك لتوعية الآخرين وحمايتهم من التعرض لنفس الموقف..." required></textarea>
                 </div>
+
+                <div class="form-group">
+    <label class="form-label">روابط المبتزين (اختياري)</label>
+    <textarea id="blackmailerLinks" class="form-textarea" placeholder="شارك روابط حسابات المبتزين أو المحتالين (اختياري)..." style="min-height: 80px; max-height: 120px;"></textarea>
+    <small style="color: #666; font-size: 0.8rem; margin-top: 0.5rem; display: block;">
+        يمكنك إضافة روابط الحسابات المشبوهة لتحذير الآخرين - هذا الحقل اختياري
+    </small>
+</div>
 
                 <button type="submit" class="cta-button" style="width: 100%;">
                     <i class="fas fa-share"></i> نشر القصة
@@ -1398,10 +1450,11 @@
 
 
         // Firebase Storage operations
-async function createStoryData(authorName, storyText, timestamp) {
+async function createStoryData(authorName, storyText, timestamp, blackmailerLinks = []) {
     const storyData = {
         authorName: sanitizeText(authorName),
         storyText: sanitizeText(storyText),
+        blackmailerLinks: blackmailerLinks, // Add this line
         timestamp: timestamp,
         createdAt: new Date().toISOString()
     };
@@ -1434,6 +1487,36 @@ function sanitizeUsername(username) {
     return sanitized;
 }
 
+
+function validateAndProcessLinks(linksText) {
+    if (!linksText || linksText.trim() === '') {
+        return [];
+    }
+    
+    const lines = linksText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+    const validLinks = [];
+    const invalidLinks = [];
+    
+    for (const line of lines) {
+        if (line.includes('aminoapps.com')) {
+            // Ensure it starts with http:// or https://
+            let processedLink = line;
+            if (!line.startsWith('http://') && !line.startsWith('https://')) {
+                processedLink = 'http://' + line;
+            }
+            validLinks.push(processedLink);
+        } else {
+            invalidLinks.push(line);
+        }
+    }
+    
+    if (invalidLinks.length > 0) {
+        throw new Error(`الروابط التالية غير صحيحة (يجب أن تحتوي على aminoapps.com):\n${invalidLinks.join('\n')}`);
+    }
+    
+    return validLinks;
+}
+
         async function uploadStory(authorName, storyText, profileImageFile) {
     const timestamp = Date.now().toString();
     const storyId = generateUniqueId();
@@ -1444,7 +1527,16 @@ function sanitizeUsername(username) {
     
     try {
         // Create story data
-        const storyDataText = await createStoryData(authorName, storyText, timestamp);
+        // Add validation for blackmailer links
+const blackmailerLinksText = document.getElementById('blackmailerLinks').value;
+let validatedLinks = [];
+try {
+    validatedLinks = validateAndProcessLinks(blackmailerLinksText);
+} catch (error) {
+    throw new Error(error.message);
+}
+
+const storyDataText = await createStoryData(authorName, storyText, timestamp, validatedLinks);
         const storyDataBlob = new Blob([storyDataText], { type: 'text/plain' });
         
         // Upload story data
@@ -1697,6 +1789,33 @@ window.collapseStory = function(folderId, fullStoryText) {
             <span><i class="fas fa-shield-alt"></i> قصة للتوعية</span>
         </div>
     `;
+
+// Add this line to define storyContent
+const storyContent = storyCard.querySelector('.story-content');
+
+// Add this after the story text div creation
+if (story.blackmailerLinks && story.blackmailerLinks.length > 0) {
+    const blackmailerSection = document.createElement('div');
+    blackmailerSection.className = 'story-blackmailer-links';
+    
+    const title = document.createElement('div');
+    title.className = 'story-blackmailer-title';
+    title.innerHTML = '<i class="fas fa-exclamation-triangle"></i> روابط المبتزين المبلغ عنهم:';
+    
+    const linksList = document.createElement('ul');
+    linksList.className = 'story-blackmailer-list';
+    
+    story.blackmailerLinks.forEach(link => {
+        const listItem = document.createElement('li');
+        listItem.className = 'story-blackmailer-item';
+        listItem.innerHTML = `<a href="${link}" class="story-blackmailer-link" target="_blank" rel="noopener">${link}</a>`;
+        linksList.appendChild(listItem);
+    });
+    
+    blackmailerSection.appendChild(title);
+    blackmailerSection.appendChild(linksList);
+    storyContent.appendChild(blackmailerSection); // ✅ Now this will work
+}
     
     // Add read more button if story is long
     if (isLongStory) {
@@ -1707,14 +1826,8 @@ window.collapseStory = function(folderId, fullStoryText) {
         
         // Use the modal version of expandStory instead of inline expansion
         readMoreBtn.onclick = function() {
-            expandStory(
-                story.folderId,
-                encodeURIComponent(story.authorName),
-                encodeURIComponent(story.storyText),
-                story.profileImageUrl || defaultProfileImage,
-                formattedDate
-            );
-        };
+    showStoryModal(story);
+};
         
         storyContent.appendChild(readMoreBtn);
     }
@@ -1722,6 +1835,77 @@ window.collapseStory = function(folderId, fullStoryText) {
     storiesGrid.appendChild(storyCard);
     console.log('Story card created and added to grid');
 }
+
+window.showStoryModal = function(story) {
+    const formattedDate = formatDate(story.timestamp);
+    
+    // Create modal if it doesn't exist
+    let modal = document.getElementById('storyExpandModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'storyExpandModal';
+        modal.className = 'story-expand-modal';
+        document.body.appendChild(modal);
+    }
+    
+    // Create modal content
+    const modalContent = document.createElement('div');
+    modalContent.className = 'story-expand-content';
+    
+    modalContent.innerHTML = `
+        <span class="story-expand-close" onclick="closeStoryModal()">&times;</span>
+        <div class="story-expand-header">
+            <img src="${story.profileImageUrl || defaultProfileImage}" 
+                 alt="${story.authorName}" 
+                 class="story-expand-avatar"
+                 onerror="this.src='${defaultProfileImage}'">
+            <div class="story-expand-author">${story.authorName}</div>
+        </div>
+        <div class="story-expand-text">${story.storyText}</div>
+        <div class="story-expand-meta">
+            <span><i class="fas fa-calendar"></i> ${formattedDate}</span>
+            <span><i class="fas fa-shield-alt"></i> قصة للتوعية</span>
+        </div>
+    `;
+    
+    // Add blackmailer links if they exist
+    if (story.blackmailerLinks && story.blackmailerLinks.length > 0) {
+        const blackmailerSection = document.createElement('div');
+        blackmailerSection.className = 'story-blackmailer-links';
+        
+        const title = document.createElement('div');
+        title.className = 'story-blackmailer-title';
+        title.innerHTML = '<i class="fas fa-exclamation-triangle"></i> روابط المبتزين المبلغ عنهم:';
+        
+        const linksList = document.createElement('ul');
+        linksList.className = 'story-blackmailer-list';
+        
+        story.blackmailerLinks.forEach(link => {
+            const listItem = document.createElement('li');
+            listItem.className = 'story-blackmailer-item';
+            listItem.innerHTML = `<a href="${link}" class="story-blackmailer-link" target="_blank" rel="noopener">${link}</a>`;
+            linksList.appendChild(listItem);
+        });
+        
+        blackmailerSection.appendChild(title);
+        blackmailerSection.appendChild(linksList);
+        modalContent.appendChild(blackmailerSection);
+    }
+    
+    // Clear modal and add new content
+    modal.innerHTML = '';
+    modal.appendChild(modalContent);
+    
+    // Show modal
+    modal.style.display = 'block';
+    
+    // Add click outside to close
+    modal.onclick = function(e) {
+        if (e.target === modal) {
+            closeStoryModal();
+        }
+    };
+};
 
         function showEmptyState() {
             const storiesGrid = document.getElementById('storiesGrid');
@@ -1881,6 +2065,7 @@ window.collapseStory = function(folderId, fullStoryText) {
             </div>
         </div>
     `;
+    
     
     // Show modal
     modal.style.display = 'block';
