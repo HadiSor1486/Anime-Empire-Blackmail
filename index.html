@@ -1,0 +1,2009 @@
+<!--/*****************************************************************************
+**                                                                         **
+**██████╗ ██╗   ██╗    ███████╗ ██████╗ ██████╗                            **
+**██╔══██╗╚██╗ ██╔╝    ██╔════╝██╔═══██╗██╔══██╗                           **
+**██████╔╝ ╚████╔╝     ███████╗██║   ██║██████╔╝                           **
+**██╔══██╗  ╚██╔╝      ╚════██║██║   ██║██╔══██╗                           **
+**██████╔╝   ██║       ███████║╚██████╔╝██║  ██║                           **
+**╚═════╝    ╚═╝       ╚══════╝ ╚═════╝ ╚═╝  ╚═╝                           **
+**                                                                         **
+**                                                                         **
+**By SOR: http://aminoapps.com/p/ip6gmk    يويلي على الحشريين يويلي      **
+**                                                                         **
+**All rights reserved. This code may not be reproduced                     **
+**or distributed without permission from the author.                       **
+**                                                                         **
+******************************************************************************/-->
+
+
+
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>منصة التوعية الرقمية - قصص للحماية</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-text-size-adjust: 100%;
+            -moz-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    padding: 0.75rem 0;
+    transition: all 0.3s ease;
+}
+
+        .header.hidden {
+            transform: translateY(-100%);
+        }
+
+        .nav-container {
+    width: 100%;
+    padding: 0 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+        .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    max-width: 90%;
+}
+
+        .logo img {
+            width: 1.5rem;
+            height: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .logo span {
+    font-size: clamp(0.7rem, 2.5vw, 1rem);
+    font-weight: 600;
+    color: #333;
+    direction: rtl;
+    line-height: 1.2;
+    text-align: center;
+}
+
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            padding: 0.5rem 0.75rem;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            touch-action: manipulation;
+        }
+
+        .nav-link:hover, .nav-link:active {
+            background: #667eea;
+            color: white;
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 4px;
+            padding: 0.75rem;
+            min-height: 44px;
+            min-width: 44px;
+            justify-content: center;
+            align-items: center;
+            touch-action: manipulation;
+        }
+
+        .hamburger span {
+            width: 20px;
+            height: 2px;
+            background: #333;
+            transition: all 0.3s ease;
+        }
+
+        /* Mobile Navigation */
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            touch-action: none;
+        }
+
+        .mobile-nav-content {
+            background: white;
+            width: 85%;
+            max-width: 320px;
+            height: 100%;
+            padding: 2rem 1rem;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .mobile-nav.active .mobile-nav-content {
+            transform: translateX(0);
+        }
+
+        .mobile-nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 3rem;
+        }
+
+        .mobile-nav-link {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            padding: 1rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-height: 44px;
+            touch-action: manipulation;
+        }
+
+        .mobile-nav-link:hover, .mobile-nav-link:active {
+            background: #f0f0f0;
+        }
+
+        .mobile-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #333;
+            min-height: 44px;
+            min-width: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 80px;
+            padding: 1rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-section {
+            text-align: center;
+            margin-bottom: 2rem;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem 1rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .hero-title {
+            font-size: 1.75rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .hero-subtitle {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .cta-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            min-height: 44px;
+            touch-action: manipulation;
+        }
+
+        .cta-button:hover, .cta-button:active {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Stories Section */
+        .stories-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: white;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .stories-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .story-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            width: 100%;
+        }
+
+        .story-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .story-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .story-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #667eea;
+            flex-shrink: 0;
+        }
+
+        .story-author {
+            font-weight: 600;
+            color: #333;
+            word-break: break-word;
+            font-size: 0.95rem;
+        }
+
+        .story-content {
+            background: #f8f9ff;
+            padding: 1.25rem;
+            border-radius: 12px;
+            border-right: 4px solid #667eea;
+            margin: 1rem 0;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        /* Profile Image Upload Styles */
+.profile-image-upload {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.profile-preview {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid #667eea;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #f8f9ff;
+    overflow: hidden;
+    position: relative;
+}
+
+.profile-preview:hover {
+    transform: scale(1.05);
+    border-color: #764ba2;
+}
+
+.profile-preview-icon {
+    font-size: 2rem;
+    color: #667eea;
+}
+
+.profile-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.profile-upload-text {
+    color: #666;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+}
+
+.file-input {
+    display: none;
+}
+
+        /* Fixed text truncation - Instagram style */
+        .story-text {
+            color: #555;
+            line-height: 1.7;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+            width: 100%;
+            font-size: 0.95rem;
+            white-space: pre-wrap;
+        }
+
+        .story-text.truncated {
+            overflow: hidden;
+            position: relative;
+            max-height: 6.8em; /* Exactly 4 lines * 1.7 line-height */
+        }
+
+        .story-text.truncated::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 100%;
+            height: 1.7em;
+            background: linear-gradient(transparent, #f8f9ff 70%);
+            pointer-events: none;
+        }
+
+        /* Read more/less buttons */
+        .read-more-btn, .read-less-btn {
+            background: none;
+            border: none;
+            color: #667eea;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 0.75rem 0;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            min-height: 44px;
+            touch-action: manipulation;
+            position: relative;
+            z-index: 10;
+        }
+
+        .read-more-btn:hover, .read-less-btn:hover,
+        .read-more-btn:active, .read-less-btn:active {
+            color: #764ba2;
+            transform: translateX(-2px);
+        }
+
+        .story-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            color: #888;
+            font-size: 0.85rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        /* Stats Section */
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+            display: block;
+        }
+
+        .stat-label {
+            color: #666;
+            font-weight: 500;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        /* Enhanced Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            touch-action: none;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 1.5rem;
+            border-radius: 15px;
+            width: 95%;
+            max-width: 500px;
+            position: relative;
+            animation: modalSlideIn 0.3s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Enhanced story expand modal */
+        .story-expand-modal {
+            display: none;
+            position: fixed;
+            z-index: 2500;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(15px);
+            touch-action: none;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .story-expand-content {
+            background: white;
+            margin: 1rem auto;
+            padding: 1.5rem;
+            border-radius: 20px;
+            width: 95%;
+            max-width: 650px;
+            position: relative;
+            animation: modalSlideIn 0.4s ease;
+            min-height: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .story-expand-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+            padding-right: 3rem; /* Space for close button */
+        }
+
+        .story-expand-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #667eea;
+            flex-shrink: 0;
+        }
+
+        .story-expand-author {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #333;
+            word-break: break-word;
+            flex: 1;
+        }
+
+        /* Enhanced text display in modal */
+        .story-expand-text {
+            background: #f8f9ff;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-right: 4px solid #667eea;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            line-height: 1.8;
+            color: #444;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+            white-space: pre-wrap;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        .story-expand-close, .close {
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            font-size: 1.75rem;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.3s ease;
+            min-height: 44px;
+            min-width: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            backdrop-filter: blur(10px);
+        }
+
+        .story-expand-close:hover, .close:hover,
+        .story-expand-close:active, .close:active {
+            color: #333;
+            background: rgba(255, 255, 255, 1);
+        }
+
+        .story-expand-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #888;
+            font-size: 0.9rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Form Elements - Email input removed */
+        .modal-title {
+            font-size: 1.3rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95rem;
+        }
+
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            resize: vertical;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            max-height: 200px;
+        }
+
+        .char-counter {
+            text-align: left;
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+
+        .char-counter.warning {
+            color: #ff9800;
+        }
+
+        .char-counter.error {
+            color: #f44336;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            background: #f8f9ff;
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            width: 100%;
+            transition: all 0.3s ease;
+            min-height: 44px;
+            touch-action: manipulation;
+        }
+
+        .file-input-wrapper:hover, .file-input-wrapper:active {
+            background: #eef2ff;
+        }
+
+        .file-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-text {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        /* Loading and Notifications */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            z-index: 3000;
+            opacity: 0;
+            transform: translateX(300px);
+            transition: all 0.3s ease;
+            max-width: 90%;
+            word-wrap: break-word;
+            font-size: 0.9rem;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: #4caf50;
+        }
+
+        .notification.error {
+            background: #f44336;
+        }
+
+        /* Privacy Notice Modal */
+        .privacy-modal {
+            display: block;
+            position: fixed;
+            z-index: 3000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            touch-action: none;
+        }
+
+        .privacy-content {
+            background: white;
+            margin: 10% auto;
+            padding: 2rem 1.5rem;
+            border-radius: 20px;
+            width: 95%;
+            max-width: 450px;
+            text-align: center;
+            position: relative;
+            animation: modalSlideIn 0.5s ease;
+        }
+
+        .privacy-icon {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        .privacy-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .privacy-text {
+            color: #666;
+            line-height: 1.7;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        .privacy-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 1rem 2.5rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 44px;
+            touch-action: manipulation;
+        }
+
+        .privacy-button:hover, .privacy-button:active {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 2rem 1rem;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        .empty-text {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Search and Filter */
+        .search-filter-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 50px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Footer */
+        .footer {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .author-info {
+            margin-bottom: 1rem;
+        }
+
+        .author-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .author-link:hover, .author-link:active {
+            text-decoration: underline;
+        }
+
+        .shield-logo {
+            width: 1.75rem;
+            height: 1.75rem;
+            object-fit: cover;
+            clip-path: polygon(50% 0%, 80% 35%, 100% 35%, 85% 100%, 50% 85%, 15% 100%, 0% 35%, 20% 35%);
+            transition: all 0.3s ease;
+        }
+
+        .shield-logo:hover {
+            transform: scale(1.1);
+        }
+
+        .privacy-shield-logo {
+            width: 3.5rem;
+            height: 3.5rem;
+            object-fit: cover;
+            clip-path: polygon(50% 0%, 80% 35%, 100% 35%, 85% 100%, 50% 85%, 15% 100%, 0% 35%, 20% 35%);
+            margin-bottom: 1rem;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .story-card {
+            opacity: 0;
+        }
+
+        /* Tablet Styles */
+        @media (min-width: 768px) {
+            .main-content {
+                padding: 2rem;
+            }
+
+            .hero-section {
+                padding: 3rem 2rem;
+                margin-bottom: 3rem;
+            }
+
+            .hero-title {
+                font-size: 2.2rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+
+            .stories-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 2rem;
+            }
+
+            .story-card {
+                padding: 2rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .stats-section {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .nav-link {
+                font-size: 0.9rem;
+                padding: 0.5rem 1rem;
+            }
+
+            .story-expand-content {
+                margin: 2rem auto;
+                padding: 2rem;
+            }
+        }
+
+        /* Desktop Styles */
+        @media (min-width: 1024px) {
+            .stories-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .story-expand-content {
+                padding: 2.5rem;
+                margin: 3rem auto;
+                max-width: 700px;
+            }
+
+            .modal-content {
+                padding: 2rem;
+                width: 90%;
+                max-width: 600px;
+            }
+        }
+
+        /* Enhanced Very Small Screens */
+        @media (max-width: 360px) {
+            .nav-container {
+                padding: 0 0.5rem;
+            }
+
+            .logo {
+                font-size: 0.8rem;
+                max-width: 50%;
+            }
+
+            .logo img {
+                width: 1.2rem;
+                height: 1.2rem;
+            }
+
+            .nav-link {
+                font-size: 0.7rem;
+                padding: 0.4rem 0.6rem;
+            }
+
+            .hero-title {
+                font-size: 1.4rem;
+            }
+
+            .hero-subtitle {
+                font-size: 0.9rem;
+            }
+
+            .story-card {
+                padding: 1rem;
+            }
+
+            .story-expand-content {
+                padding: 1rem;
+                margin: 0.5rem auto;
+                width: 98%;
+                border-radius: 15px;
+            }
+
+            .story-expand-text {
+                padding: 1rem;
+                font-size: 0.95rem;
+                line-height: 1.7;
+            }
+
+            .stats-section {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+        }
+
+        /* Fix for iOS Safari */
+        @supports (-webkit-touch-callout: none) {
+            .header {
+                position: -webkit-sticky;
+                position: sticky;
+            }
+        }
+
+        /* Prevent zoom on input focus */
+        @media screen and (max-width: 768px) {
+            input[type="text"], 
+            input[type="email"], 
+            textarea, 
+            select {
+                font-size: 16px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Privacy Notice Modal -->
+    <div id="privacyModal" class="privacy-modal">
+        <div class="privacy-content">
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj48cGF0aCBkPSJNNjAgMTBsMzAgMjB2NDBsLTMwIDMwLTMwLTMwVjMweiIgZmlsbD0iIzY2N2VlYSIvPjwvc3ZnPg==" class="privacy-shield-logo" alt="Logo">
+            <h2 class="privacy-title">حماية البيانات والخصوصية</h2>
+            <p class="privacy-text">
+                نحن نضمن الحفاظ على سرية وأمان جميع المعلومات التي تشاركها معنا. 
+                جميع القصص والبيانات الشخصية محمية بأعلى معايير الأمان ولن يتم 
+                استخدامها إلا لغرض التوعية وحماية المجتمع من المخاطر الرقمية.
+                هدفنا هو خلق مساحة آمنة للجميع للتعلم من تجارب الآخرين.
+            </p>
+            <button class="privacy-button" onclick="closePrivacyModal()">
+                <i class="fas fa-check"></i> فهمت، أريد المتابعة
+            </button>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo">
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTQwIj48cGF0aCBkPSJNNjAgMTBMOTAgMjVMOTUgMzBMOTUgNzBROTUgODUgODUgOTVMNjAgMTI1TDM1IDk1UTI1IDg1IDI1IDcwTDI1IDMwTDMwIDI1WiIgZmlsbD0iIzY2N2VlYSIgc3Ryb2tlPSIjNGM2M2QyIiBzdHJva2Utd2lkdGg9IjIiLz48ZGVmcz48Y2xpcFBhdGggaWQ9InNoaWVsZENsaXAiPjxwYXRoIGQ9Ik02MCAxNUw4NSAyN0w4OCAzMkw4OCA2OFE4OCA4MCA4MCA4OEw2MCAxMTVMNDAgODhRMzIgODAzMiA2OEwzMiAzMkwzNSAyN1oiLz48L2NsaXBQYXRoPjwvZGVmcz48cmVjdCB4PSIzMiIgeT0iMjUiIHdpZHRoPSI1NiIgaGVpZ2h0PSI5MCIgZmlsbD0iI2YwZjBmMCIgY2xpcC1wYXRoPSJ1cmwoI3NoaWVsZENsaXApIi8+PHBhdGggZD0iTTYwIDE1TDg1IDI3TDg4IDMyTDg4IDY4UTg4IDgwIDgwIDg4TDYwIDExNUw0MCA4OFEzMiA4MCAzMiA2OEwzMiAzMkwzNSAyN1oiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjMpIiBzdHJva2Utd2lkdGg9IjEiLz48L3N2Zz4=" class="privacy-shield-logo" alt="Logo">
+                <span>منصة التوعية الرقمية - <span style="color: black;">امبراطورية الانمي</span></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Navigation -->
+    <div id="mobileNav" class="mobile-nav">
+        <div class="mobile-nav-content">
+            <button class="mobile-close" onclick="closeMobileMenu()">&times;</button>
+            <div class="mobile-nav-links">
+                <a href="#" class="mobile-nav-link" onclick="showStories(); closeMobileMenu();">
+                    <i class="fas fa-home"></i> القصص
+                </a>
+                <a href="#" class="mobile-nav-link" onclick="showShareModal(); closeMobileMenu();">
+                    <i class="fas fa-plus-circle"></i> شارك قصتك
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <h1 class="hero-title">مساحة آمنة للتوعية والحماية</h1>
+            <p class="hero-subtitle">
+                شارك تجربتك واستفد من تجارب الآخرين لحماية نفسك والمجتمع من مخاطر التهديد والابتزاز الرقمي
+            </p>
+            <a href="#" class="cta-button" onclick="showShareModal()">
+                <i class="fas fa-pen"></i> شارك قصتك الآن
+            </a>
+        </section>
+
+        <!-- Stories Section -->
+        <section class="stories-section">
+            <h2 class="section-title">قصص للتوعية والحماية</h2>
+            <div id="storiesGrid" class="stories-grid">
+                <!-- Loading State -->
+                <div id="loadingState" class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>جاري تحميل القصص...</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Share Story Modal -->
+    <div id="shareModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeShareModal()">&times;</span>
+            <h2 class="modal-title">شارك قصتك للتوعية</h2>
+            
+            <form id="storyForm">
+                <div class="form-group">
+                    <label class="form-label">اسمك المستعار</label>
+                    <input type="text" id="authorName" class="form-input" placeholder="اختر اسماً مستعاراً" required>
+                </div>
+
+                <div class="form-group">
+    <label class="form-label">صورة شخصية (اختيارية)</label>
+    <div class="profile-image-upload">
+        <div class="profile-preview" onclick="document.getElementById('profileImage').click()">
+            <i class="fas fa-user profile-preview-icon"></i>
+        </div>
+        <input type="file" id="profileImage" class="file-input" accept="image/*" onchange="previewProfileImage(this)">
+        <p class="profile-upload-text">اضغط على الدائرة لاختيار صورة</p>
+    </div>
+</div>
+
+                <div class="form-group">
+                    <label class="form-label">قصتك</label>
+                    <textarea id="storyText" class="form-textarea" placeholder="شارك تجربتك لتوعية الآخرين وحمايتهم من التعرض لنفس الموقف..." required></textarea>
+                </div>
+
+                <button type="submit" class="cta-button" style="width: 100%;">
+                    <i class="fas fa-share"></i> نشر القصة
+                </button>
+            </form>
+
+            <div id="submitLoading" class="loading" style="display: none;">
+                <div class="loading-spinner"></div>
+                <p>جاري نشر قصتك...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="author-info">
+                <p>تم تطوير هذه المنصة بواسطة: <a href="http://aminoapps.com/p/ip6gmk" class="author-link" target="_blank">Sor</a></p>
+                <p>بهدف التوعية وحماية المجتمع من المخاطر الرقمية</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL, listAll, getMetadata } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js";
+        
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCKOM8Tov7jcmlNgZ5EuRyat2l791hm6nM",
+            authDomain: "sorex-bcade.firebaseapp.com",
+            projectId: "sorex-bcade",
+            storageBucket: "sorex-bcade.appspot.com",
+            messagingSenderId: "428693429265",
+            appId: "1:428693429265:web:b38ab9c0f26a026cc8e5b0",
+            measurementId: "G-QCWT0DSEL6"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const storage = getStorage(app);
+
+        // Constants
+        const STORIES_FOLDER = 'stories';
+        const CORS_PROXY = "https://corsproxy.io/?";
+        const defaultProfileImage = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj48Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI2MCIgZmlsbD0iIzY2N2VlYSIvPjxjaXJjbGUgY3g9IjYwIiBjeT0iNDUiIHI9IjIwIiBmaWxsPSJ3aGl0ZSIvPjxwYXRoIGQ9Ik05NSw5NWE0MCw0MCwwLDAsMC03MC0wLjA4LDUwLDUwLDAsMCwwLDcwLDAuMDhaIiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==";
+
+        // Utility functions
+        function generateUniqueId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+        }
+
+        function sanitizeText(text) {
+            return text.replace(/[<>]/g, '').trim();
+        }
+
+        function formatDate(timestamp) {
+            try {
+                const date = new Date(parseInt(timestamp));
+                return date.toLocaleDateString('ar', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            } catch (error) {
+                return 'حديثاً';
+            }
+        }
+
+        // CORS-safe fetch function
+        async function corsProxyFetch(url) {
+            try {
+                const encodedUrl = encodeURIComponent(url);
+                const response = await fetch(CORS_PROXY + encodedUrl);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                
+                return response;
+            } catch (error) {
+                console.error('CORS proxy fetch error:', error);
+                throw error;
+            }
+        }
+
+        // Mobile navigation and header scroll functions
+        let lastScrollTop = 0;
+        let scrollTimeout;
+
+        window.addEventListener('scroll', function() {
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(function() {
+                const header = document.querySelector('.header');
+                const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+                
+                if (currentScroll > lastScrollTop && currentScroll > 100) {
+                    // Scrolling down
+                    header.classList.add('hidden');
+                } else {
+                    // Scrolling up
+                    header.classList.remove('hidden');
+                }
+                
+                lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
+            }, 100);
+        });
+
+        // Mobile menu functions
+        window.toggleMenu = function() {
+            const mobileNav = document.getElementById('mobileNav');
+            if (mobileNav) {
+                mobileNav.classList.toggle('active');
+            }
+        };
+
+        window.closeMobileMenu = function() {
+            const mobileNav = document.getElementById('mobileNav');
+            if (mobileNav) {
+                mobileNav.classList.remove('active');
+            }
+        };
+
+        // Close mobile menu when clicking outside
+        window.addEventListener('click', function(event) {
+            const mobileNav = document.getElementById('mobileNav');
+            const hamburger = document.querySelector('.hamburger');
+            
+            if (mobileNav && mobileNav.classList.contains('active')) {
+                if (!mobileNav.contains(event.target) && !hamburger.contains(event.target)) {
+                    closeMobileMenu();
+                }
+            }
+        });
+
+        // Global functions for HTML interaction
+        window.closePrivacyModal = function() {
+            const modal = document.getElementById('privacyModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        };
+
+        window.showShareModal = function() {
+            const modal = document.getElementById('shareModal');
+            if (modal) {
+                modal.style.display = 'block';
+                // Reset form when opening
+                const form = document.getElementById('storyForm');
+                if (form) {
+                    form.reset();
+                    form.style.display = 'block';
+                }
+                const loading = document.getElementById('submitLoading');
+                if (loading) {
+                    loading.style.display = 'none';
+                }
+            }
+        };
+
+        window.closeShareModal = function() {
+            const modal = document.getElementById('shareModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+            const form = document.getElementById('storyForm');
+            if (form) {
+                form.reset();
+            }
+        };
+
+        window.showStories = function() {
+            loadStories();
+        };
+
+        window.toggleMenu = function() {
+            const navLinks = document.querySelector('.nav-links');
+            if (navLinks) {
+                navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+            }
+        };
+
+        window.showNotification = function(message, type) {
+            const notification = document.getElementById('notification');
+            if (notification) {
+                notification.textContent = message;
+                notification.className = `notification ${type}`;
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 4000);
+            }
+        };
+
+
+        // Firebase Storage operations
+        async function createStoryData(authorName, storyText, timestamp) {
+            const storyData = {
+                authorName: sanitizeText(authorName),
+                storyText: sanitizeText(storyText),
+                timestamp: timestamp,
+                createdAt: new Date().toISOString()
+            };
+            
+            return JSON.stringify(storyData, null, 2);
+        }
+
+        async function uploadStory(authorName, storyText, profileImageFile) {
+            const timestamp = Date.now().toString();
+            const storyId = generateUniqueId();
+            const userFolder = `${STORIES_FOLDER}/${storyId}`;
+            
+            try {
+                // Create story data
+                const storyDataText = await createStoryData(authorName, storyText, timestamp);
+                const storyDataBlob = new Blob([storyDataText], { type: 'text/plain' });
+                
+                // Upload story data
+                const storyDataRef = ref(storage, `${userFolder}/story.txt`);
+                const storyDataSnapshot = await uploadBytes(storyDataRef, storyDataBlob);
+                
+                // Upload profile image if provided
+                let profileImageUrl = null;
+                if (profileImageFile) {
+                    // Validate image file
+                    if (!profileImageFile.type.startsWith('image/')) {
+                        throw new Error('يرجى رفع ملف صورة صحيح');
+                    }
+                    
+                    // Check file size (max 5MB)
+                    if (profileImageFile.size > 5 * 1024 * 1024) {
+                        throw new Error('حجم الصورة كبير جداً، يرجى اختيار صورة أصغر من 5 ميجابايت');
+                    }
+                    
+                    const imageExtension = profileImageFile.name.split('.').pop().toLowerCase();
+                    const profileImageRef = ref(storage, `${userFolder}/profile.${imageExtension}`);
+                    const profileImageSnapshot = await uploadBytes(profileImageRef, profileImageFile);
+                    profileImageUrl = await getDownloadURL(profileImageSnapshot.ref);
+                }
+                
+                return {
+                    success: true,
+                    storyId: storyId,
+                    profileImageUrl: profileImageUrl
+                };
+                
+            } catch (error) {
+                console.error('Error uploading story:', error);
+                throw error;
+            }
+        }
+
+        async function loadStories() {
+            try {
+                console.log('Starting to load stories...');
+                const storiesGrid = document.getElementById('storiesGrid');
+                const loadingState = document.getElementById('loadingState');
+                
+                if (loadingState) {
+                    loadingState.style.display = 'block';
+                }
+                
+                // Clear existing stories
+                if (storiesGrid) {
+                    storiesGrid.innerHTML = '<div id="loadingState" class="loading"><div class="loading-spinner"></div><p>جاري تحميل القصص...</p></div>';
+                }
+                
+                // List all story folders
+                const storiesRef = ref(storage, STORIES_FOLDER);
+                const storyFoldersResult = await listAll(storiesRef);
+                
+                console.log('Found story folders:', storyFoldersResult.prefixes.length);
+                
+                if (storyFoldersResult.prefixes.length === 0) {
+                    console.log('No story folders found');
+                    showEmptyState();
+                    return;
+                }
+                
+                // Load each story
+                const stories = [];
+                const loadPromises = storyFoldersResult.prefixes.map(async (folderRef) => {
+                    try {
+                        console.log('Loading story from folder:', folderRef.name);
+                        const storyData = await loadSingleStory(folderRef);
+                        if (storyData) {
+                            console.log('Successfully loaded story:', storyData.authorName);
+                            stories.push(storyData);
+                        } else {
+                            console.log('Failed to load story from folder:', folderRef.name);
+                        }
+                    } catch (error) {
+                        console.error('Error loading story from folder:', folderRef.name, error);
+                    }
+                });
+                
+                await Promise.allSettled(loadPromises);
+                
+                console.log('Total stories loaded:', stories.length);
+                
+                // Sort stories by timestamp (newest first)
+                stories.sort((a, b) => parseInt(b.timestamp) - parseInt(a.timestamp));
+                
+                // Clear loading and display stories
+                if (storiesGrid) {
+                    storiesGrid.innerHTML = '';
+                    
+                    if (stories.length === 0) {
+                        console.log('No valid stories found, showing empty state');
+                        showEmptyState();
+                    } else {
+                        console.log('Displaying', stories.length, 'stories');
+                        stories.forEach(story => createStoryCard(story));
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Error loading stories:', error);
+                showNotification('حدث خطأ في تحميل القصص: ' + error.message, 'error');
+                showEmptyState();
+            }
+        }
+
+        async function loadSingleStory(folderRef) {
+            try {
+                console.log('Loading single story from:', folderRef.fullPath);
+                
+                // Get story data with error handling
+                const storyDataRef = ref(storage, `${folderRef.fullPath}/story.txt`);
+                let storyDataUrl;
+                
+                try {
+                    storyDataUrl = await getDownloadURL(storyDataRef);
+                    console.log('Got story data URL:', storyDataUrl);
+                } catch (error) {
+                    console.error('Failed to get story data URL:', error);
+                    return null;
+                }
+                
+                // Fetch story data using CORS proxy
+                let storyData;
+                try {
+                    const storyResponse = await corsProxyFetch(storyDataUrl);
+                    const storyText = await storyResponse.text();
+                    console.log('Raw story text:', storyText.substring(0, 100) + '...');
+                    storyData = JSON.parse(storyText);
+                    console.log('Parsed story data:', storyData);
+                } catch (error) {
+                    console.error('Failed to fetch or parse story data:', error);
+                    return null;
+                }
+                
+                // Try to get profile image
+                let profileImageUrl = defaultProfileImage;
+                try {
+                    const folderContents = await listAll(folderRef);
+                    const profileImage = folderContents.items.find(item => 
+                        item.name.startsWith('profile.')
+                    );
+                    
+                    if (profileImage) {
+                        try {
+                            profileImageUrl = await getDownloadURL(profileImage);
+                            console.log('Found profile image:', profileImageUrl);
+                        } catch (imgError) {
+                            console.log('Could not get profile image URL, using default');
+                        }
+                    } else {
+                        console.log('No profile image found, using default');
+                    }
+                } catch (imageError) {
+                    console.log('Error loading profile image, using default:', imageError);
+                }
+                
+                const result = {
+                    ...storyData,
+                    profileImageUrl: profileImageUrl,
+                    folderId: folderRef.name
+                };
+                
+                console.log('Final story object:', result);
+                return result;
+                
+            } catch (error) {
+                console.error('Error loading single story:', error);
+                return null;
+            }
+        }
+
+        window.expandStory = function(folderId, authorName, storyText, profileImageUrl, formattedDate) {
+    // Decode the parameters
+    const decodedAuthorName = decodeURIComponent(authorName);
+    const decodedStoryText = decodeURIComponent(storyText);
+    
+    // Find the story element
+    const storyElement = document.getElementById(`story-${folderId}`);
+    const readMoreBtn = storyElement.parentNode.querySelector('.read-more-btn');
+    
+    if (storyElement && readMoreBtn) {
+        // Show full story
+        storyElement.textContent = decodedStoryText;
+        storyElement.classList.remove('truncated');
+        
+        // Change button to "اقرأ أقل" (Read Less)
+        readMoreBtn.innerHTML = '<i class="fas fa-chevron-up"></i> اقرأ أقل';
+        readMoreBtn.onclick = function() {
+            collapseStory(folderId, decodedStoryText);
+        };
+    }
+};
+
+window.collapseStory = function(folderId, fullStoryText) {
+    const storyElement = document.getElementById(`story-${folderId}`);
+    const readMoreBtn = storyElement.parentNode.querySelector('.read-more-btn');
+    
+    if (storyElement && readMoreBtn) {
+        // Show truncated story
+        const truncatedText = fullStoryText.substring(0, 200) + '...';
+        storyElement.textContent = truncatedText;
+        storyElement.classList.add('truncated');
+        
+        // Change button back to "اقرأ المزيد"
+        readMoreBtn.innerHTML = '<i class="fas fa-chevron-down"></i> اقرأ المزيد';
+        readMoreBtn.onclick = function() {
+            expandStory(folderId, encodeURIComponent(''), encodeURIComponent(fullStoryText), '', '');
+        };
+    }
+};
+
+
+        function createStoryCard(story) {
+    const storiesGrid = document.getElementById('storiesGrid');
+    if (!storiesGrid) {
+        console.error('Stories grid not found');
+        return;
+    }
+    
+    console.log('Creating story card for:', story.authorName);
+    
+    const storyCard = document.createElement('div');
+    storyCard.className = 'story-card';
+    storyCard.style.animation = 'fadeInUp 0.5s ease forwards';
+    
+    const formattedDate = formatDate(story.timestamp);
+    
+    // Check if story text is long (more than 200 characters)
+    const isLongStory = story.storyText.length > 200;
+    const truncatedText = isLongStory ? story.storyText.substring(0, 200) + '...' : story.storyText;
+    
+    // Create the story card HTML
+    storyCard.innerHTML = `
+        <div class="story-header">
+            <img src="${story.profileImageUrl || defaultProfileImage}" 
+                 alt="${story.authorName}" 
+                 class="story-avatar"
+                 onerror="this.src='${defaultProfileImage}'"
+                 loading="lazy">
+            <div class="story-author">${story.authorName}</div>
+        </div>
+        <div class="story-content">
+            <p class="story-text" id="story-${story.folderId}">${truncatedText}</p>
+        </div>
+        <div class="story-meta">
+            <span><i class="fas fa-calendar"></i> ${formattedDate}</span>
+            <span><i class="fas fa-shield-alt"></i> قصة للتوعية</span>
+        </div>
+    `;
+    
+    // Add read more button if story is long
+    if (isLongStory) {
+        const storyContent = storyCard.querySelector('.story-content');
+        const readMoreBtn = document.createElement('button');
+        readMoreBtn.className = 'read-more-btn';
+        readMoreBtn.innerHTML = '<i class="fas fa-chevron-down"></i> اقرأ المزيد';
+        
+        // Use the modal version of expandStory instead of inline expansion
+        readMoreBtn.onclick = function() {
+            expandStory(
+                story.folderId,
+                encodeURIComponent(story.authorName),
+                encodeURIComponent(story.storyText),
+                story.profileImageUrl || defaultProfileImage,
+                formattedDate
+            );
+        };
+        
+        storyContent.appendChild(readMoreBtn);
+    }
+    
+    storiesGrid.appendChild(storyCard);
+    console.log('Story card created and added to grid');
+}
+
+        function showEmptyState() {
+            const storiesGrid = document.getElementById('storiesGrid');
+            if (!storiesGrid) return;
+            
+            console.log('Showing empty state');
+            
+            storiesGrid.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-users empty-icon"></i>
+                    <p class="empty-text">لا توجد قصص حتى الآن</p>
+                    <button class="cta-button" onclick="showShareModal()">
+                        <i class="fas fa-plus"></i> كن أول من يشارك قصته
+                    </button>
+                </div>
+            `;
+        }
+
+        // Form submission handler
+        function setupFormHandler() {
+    const storyForm = document.getElementById('storyForm');
+    if (!storyForm) return;
+    
+    // Add character counter for story text
+    const storyTextInput = document.getElementById('storyText');
+    if (storyTextInput) {
+        // Create character counter
+        const charCounter = document.createElement('div');
+        charCounter.className = 'char-counter';
+        charCounter.id = 'charCounter';
+        storyTextInput.parentNode.appendChild(charCounter);
+        
+        // Update counter on input
+        storyTextInput.addEventListener('input', function() {
+            const currentLength = this.value.length;
+            const maxLength = 2000;
+            charCounter.textContent = `${currentLength}/${maxLength} حرف`;
+            
+            if (currentLength > maxLength * 0.9) {
+                charCounter.classList.add('warning');
+            } else {
+                charCounter.classList.remove('warning');
+            }
+            
+            if (currentLength > maxLength) {
+                charCounter.classList.add('error');
+                charCounter.classList.remove('warning');
+            } else {
+                charCounter.classList.remove('error');
+            }
+        });
+        
+        // Initial counter display
+        charCounter.textContent = `0/2000 حرف`;
+    }
+    
+    storyForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const authorNameInput = document.getElementById('authorName');
+        const storyTextInput = document.getElementById('storyText');
+        const profileImageInput = document.getElementById('profileImage');
+        
+        if (!authorNameInput || !storyTextInput) {
+            showNotification('خطأ في النموذج', 'error');
+            return;
+        }
+        
+        const authorName = authorNameInput.value.trim();
+        const storyText = storyTextInput.value.trim();
+        const profileImageFile = profileImageInput ? profileImageInput.files[0] : null;
+        
+        // Validation
+        if (!authorName || !storyText) {
+            showNotification('يرجى ملء جميع الحقول المطلوبة', 'error');
+            return;
+        }
+        
+        if (authorName.length < 2 || authorName.length > 50) {
+            showNotification('يجب أن يكون الاسم بين 2 و 50 حرف', 'error');
+            return;
+        }
+        
+        if (storyText.length < 10 || storyText.length > 2000) {
+            showNotification('يجب أن تكون القصة بين 10 و 2000 حرف', 'error');
+            return;
+        }
+        
+        // Show loading state
+        const formElement = document.getElementById('storyForm');
+        const loadingElement = document.getElementById('submitLoading');
+        
+        if (formElement) formElement.style.display = 'none';
+        if (loadingElement) loadingElement.style.display = 'block';
+        
+        try {
+            console.log('Uploading story...');
+            await uploadStory(authorName, storyText, profileImageFile);
+            
+            showNotification('تم نشر قصتك بنجاح! شكراً لمساهمتك في التوعية', 'success');
+            closeShareModal();
+            
+            // Reload stories after a short delay
+            setTimeout(() => {
+                console.log('Reloading stories after successful upload...');
+                loadStories();
+            }, 2000);
+            
+        } catch (error) {
+            console.error('Error submitting story:', error);
+            let errorMessage = 'حدث خطأ في نشر القصة، يرجى المحاولة مرة أخرى';
+            
+            if (error.message.includes('يرجى رفع ملف صورة صحيح')) {
+                errorMessage = error.message;
+            } else if (error.message.includes('حجم الصورة كبير جداً')) {
+                errorMessage = error.message;
+            }
+            
+            showNotification(errorMessage, 'error');
+        } finally {
+            // Hide loading state
+            if (formElement) formElement.style.display = 'block';
+            if (loadingElement) loadingElement.style.display = 'none';
+        }
+    });
+}
+
+        window.expandStory = function(storyId, authorName, storyText, profileImage, date) {
+    // Decode the encoded parameters
+    const decodedAuthor = decodeURIComponent(authorName);
+    const decodedStory = decodeURIComponent(storyText);
+    
+    // Create modal if it doesn't exist
+    let modal = document.getElementById('storyExpandModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'storyExpandModal';
+        modal.className = 'story-expand-modal';
+        document.body.appendChild(modal);
+    }
+    
+    // Set modal content
+    modal.innerHTML = `
+        <div class="story-expand-content">
+            <span class="story-expand-close" onclick="closeStoryModal()">&times;</span>
+            <div class="story-expand-header">
+                <img src="${profileImage}" 
+                     alt="${decodedAuthor}" 
+                     class="story-expand-avatar"
+                     onerror="this.src='${defaultProfileImage}'">
+                <div class="story-expand-author">${decodedAuthor}</div>
+            </div>
+            <div class="story-expand-text">${decodedStory}</div>
+            <div class="story-expand-meta">
+                <span><i class="fas fa-calendar"></i> ${date}</span>
+                <span><i class="fas fa-shield-alt"></i> قصة للتوعية</span>
+            </div>
+        </div>
+    `;
+    
+    // Show modal
+    modal.style.display = 'block';
+    
+    // Add click outside to close
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeStoryModal();
+        }
+    });
+};
+
+// Function to close story modal
+window.closeStoryModal = function() {
+    const modal = document.getElementById('storyExpandModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+};
+
+// ADD this to handle escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeStoryModal();
+        closeShareModal();
+        closeMobileMenu();
+    }
+});
+
+        // File input preview handler
+        function setupFilePreview() {
+            const profileImageInput = document.getElementById('profileImage');
+            const fileInputWrapper = document.querySelector('.file-input-wrapper');
+            
+            if (profileImageInput && fileInputWrapper) {
+                profileImageInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    const fileInputText = fileInputWrapper.querySelector('.file-input-text');
+                    
+                    if (file) {
+                        if (file.type.startsWith('image/')) {
+                            fileInputText.innerHTML = `
+                                <i class="fas fa-check-circle" style="color: #4caf50;"></i>
+                                <br>تم اختيار: ${file.name}
+                            `;
+                            fileInputWrapper.style.borderColor = '#4caf50';
+                            fileInputWrapper.style.backgroundColor = '#f0fff0';
+                        } else {
+                            fileInputText.innerHTML = `
+                                <i class="fas fa-exclamation-triangle" style="color: #f44336;"></i>
+                                <br>يرجى اختيار ملف صورة
+                            `;
+                            fileInputWrapper.style.borderColor = '#f44336';
+                            fileInputWrapper.style.backgroundColor = '#fff0f0';
+                            profileImageInput.value = '';
+                        }
+                    } else {
+                        fileInputText.innerHTML = `
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <br>اضغط لرفع صورة أو اسحبها هنا
+                        `;
+                        fileInputWrapper.style.borderColor = '#667eea';
+                        fileInputWrapper.style.backgroundColor = '#f8f9ff';
+                    }
+                });
+            }
+        }
+
+        // Function to load logo from Firebase
+async function loadLogo() {
+    try {
+        const logoRef = ref(storage, 'logo.jpg');
+        const logoUrl = await getDownloadURL(logoRef);
+        
+        // Update all shield logos
+        const shieldLogos = document.querySelectorAll('.shield-logo, .privacy-shield-logo');
+        shieldLogos.forEach(img => {
+            img.src = logoUrl;
+        });
+        
+        console.log('Logo loaded successfully');
+    } catch (error) {
+        console.log('Logo not found, keeping default shields');
+        // Keep the original shield icons if logo.jpg doesn't exist
+    }
+}
+
+
+        // Initialize everything when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Initializing Firebase Storage Website...');
+            
+            // Setup form handlers
+            setupFormHandler();
+            setupFilePreview();
+            loadLogo();
+            
+            // Load stories with delay to ensure everything is ready
+            setTimeout(() => {
+                console.log('Loading initial stories...');
+                loadStories();
+            }, 1000);
+            
+            // Setup modal close on outside click
+            window.addEventListener('click', function(event) {
+                const modal = document.getElementById('shareModal');
+                if (event.target === modal) {
+                    closeShareModal();
+                }
+            });
+            
+            console.log('Website initialized successfully');
+        });
+
+        // Add some CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            .story-card {
+                opacity: 0;
+            }
+            
+            .loading-spinner {
+                animation: spin 1s linear infinite;
+            }
+        `;
+        document.head.appendChild(style);
+
+    </script>
+
+    <script>
+function previewProfileImage(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.querySelector('.profile-preview');
+            preview.innerHTML = `<img src="${e.target.result}" alt="Profile Preview">`;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>
+</body>
+</html>
