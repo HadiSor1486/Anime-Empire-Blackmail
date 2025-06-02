@@ -541,33 +541,47 @@
         }
 
         .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 25px;
-            border-radius: 8px;
-            color: white;
-            font-weight: 600;
-            z-index: 10000;
-            transform: translateX(100%);
-            transition: all 0.3s ease;
-        }
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    z-index: 10000;
+    transform: translateX(calc(100% + 50px));
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    min-width: 200px;
+    white-space: nowrap;
+}
 
-        .notification.show {
-            transform: translateX(0);
-        }
+.notification.show {
+    transform: translateX(0);
+}
 
-        .notification.success {
-            background: #27ae60;
-        }
+.notification.success {
+    background: #27ae60;
+}
 
-        .notification.error {
-            background: #e74c3c;
-        }
+.notification.error {
+    background: #e74c3c;
+}
 
-        .notification.warning {
-            background: #f39c12;
-        }
+.notification.warning {
+    background: #f39c12;
+}
+
+
+.notification.rtl {
+    right: auto;
+    left: 20px;
+    transform: translateX(calc(-100% - 50px));
+}
+
+.notification.rtl.show {
+    transform: translateX(0);
+}
 
         /* Modal Styles */
         .modal {
@@ -1191,18 +1205,82 @@
         }
 
         // Delete individual blackmailer link
-window.deleteBlackmailerLink = async function(storyId, linkIndex) {
+// Delete individual blackmailer link - UPDATED to use modal
+window.deleteBlackmailerLink = function(storyId, linkIndex) {
+    const story = storiesData.find(s => s.folderId === storyId);
+    if (!story || !story.blackmailerLinks || linkIndex >= story.blackmailerLinks.length) {
+        showNotification('الرابط غير موجود', 'error');
+        return;
+    }
+    
+    const linkToDelete = story.blackmailerLinks[linkIndex];
+    
+    // Use the modal instead of confirm()
+    const modalBody = document.getElementById('modalBody');
+    modalBody.innerHTML = `
+        <p>هل تريد حذف هذا الرابط؟</p>
+        <p style="word-break: break-all; background: #f8f9fa; padding: 10px; border-radius: 5px; margin: 10px 0;">
+            <strong>${linkToDelete}</strong>
+        </p>
+        <p style="color: #e74c3c; margin-top: 10px;">لا يمكن التراجع عن هذا الإجراء.</p>
+    `;
+    
+    deleteCallback = () => performDeleteBlackmailerLink(storyId, linkIndex);
+    document.getElementById('confirmModal').style.display = 'block';
+};
+
+// Delete all blackmailer links - UPDATED to use modal
+window.deleteAllBlackmailerLinks = function(storyId) {
+    const story = storiesData.find(s => s.folderId === storyId);
+    if (!story || !story.blackmailerLinks || story.blackmailerLinks.length === 0) {
+        showNotification('لا توجد روابط للحذف', 'error');
+        return;
+    }
+    
+    // Use the modal instead of confirm()
+    const modalBody = document.getElementById('modalBody');
+    modalBody.innerHTML = `
+        <p>هل تريد حذف جميع الروابط؟</p>
+        <p><strong>عدد الروابط: ${story.blackmailerLinks.length}</strong></p>
+        <p style="color: #e74c3c; margin-top: 10px;">لا يمكن التراجع عن هذا الإجراء.</p>
+    `;
+    
+    deleteCallback = () => performDeleteAllBlackmailerLinks(storyId);
+    document.getElementById('confirmModal').style.display = 'block';
+};
+
+// Delete profile image - UPDATED to use modal
+window.deleteProfileImage = function(storyId) {
+    const story = storiesData.find(s => s.folderId === storyId);
+    if (!story) {
+        showNotification('القصة غير موجودة', 'error');
+        return;
+    }
+    
+    if (story.profileImageUrl === defaultProfileImage) {
+        showNotification('لا توجد صورة شخصية للحذف', 'error');
+        return;
+    }
+    
+    // Use the modal instead of confirm()
+    const modalBody = document.getElementById('modalBody');
+    modalBody.innerHTML = `
+        <p>هل تريد حذف الصورة الشخصية؟</p>
+        <p><strong>المؤلف: ${story.authorName}</strong></p>
+        <p style="color: #e74c3c; margin-top: 10px;">لا يمكن التراجع عن هذا الإجراء.</p>
+    `;
+    
+    deleteCallback = () => performDeleteProfileImage(storyId);
+    document.getElementById('confirmModal').style.display = 'block';
+};
+
+// NEW FUNCTION: Perform delete blackmailer link
+async function performDeleteBlackmailerLink(storyId, linkIndex) {
     try {
         const story = storiesData.find(s => s.folderId === storyId);
         if (!story || !story.blackmailerLinks || linkIndex >= story.blackmailerLinks.length) {
-            showNotification('الرابط غير موجود', 'error');
-            return;
+            throw new Error('الرابط غير موجود');
         }
-        
-        const linkToDelete = story.blackmailerLinks[linkIndex];
-        const confirmDelete = confirm(`هل تريد حذف هذا الرابط؟\n${linkToDelete}`);
-        
-        if (!confirmDelete) return;
         
         showLoading();
         
@@ -1227,20 +1305,15 @@ window.deleteBlackmailerLink = async function(storyId, linkIndex) {
     } finally {
         hideLoading();
     }
-};
+}
 
-// Delete all blackmailer links
-window.deleteAllBlackmailerLinks = async function(storyId) {
+// NEW FUNCTION: Perform delete all blackmailer links
+async function performDeleteAllBlackmailerLinks(storyId) {
     try {
         const story = storiesData.find(s => s.folderId === storyId);
-        if (!story || !story.blackmailerLinks || story.blackmailerLinks.length === 0) {
-            showNotification('لا توجد روابط للحذف', 'error');
-            return;
+        if (!story) {
+            throw new Error('القصة غير موجودة');
         }
-        
-        const confirmDelete = confirm(`هل تريد حذف جميع الروابط (${story.blackmailerLinks.length} رابط)؟`);
-        
-        if (!confirmDelete) return;
         
         showLoading();
         
@@ -1265,25 +1338,19 @@ window.deleteAllBlackmailerLinks = async function(storyId) {
     } finally {
         hideLoading();
     }
-};
+}
 
-// Delete profile image
-window.deleteProfileImage = async function(storyId) {
+// NEW FUNCTION: Perform delete profile image
+async function performDeleteProfileImage(storyId) {
     try {
         const story = storiesData.find(s => s.folderId === storyId);
         if (!story) {
-            showNotification('القصة غير موجودة', 'error');
-            return;
+            throw new Error('القصة غير موجودة');
         }
         
         if (story.profileImageUrl === defaultProfileImage) {
-            showNotification('لا توجد صورة شخصية للحذف', 'error');
-            return;
+            throw new Error('لا توجد صورة شخصية للحذف');
         }
-        
-        const confirmDelete = confirm(`هل تريد حذف الصورة الشخصية لـ "${story.authorName}"؟`);
-        
-        if (!confirmDelete) return;
         
         showLoading();
         
@@ -1314,7 +1381,7 @@ window.deleteProfileImage = async function(storyId) {
     } finally {
         hideLoading();
     }
-};
+}
 
 // 3. ADD this helper function to update story data in Firebase:
 
