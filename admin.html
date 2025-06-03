@@ -21,7 +21,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>لوحة الإدارة - إدارة القصص</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -704,6 +704,203 @@
                 padding: 20px;
             }
         }
+        /* Edit Profile Modal Styles */
+.edit-profile-modal {
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh; /* Prevent modal from being taller than viewport */
+    overflow-y: auto; /* Enable vertical scrolling */
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+/* Modal content wrapper to enable proper scrolling */
+.modal-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+    padding: 20px;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+.form-group label i {
+    margin-left: 8px;
+    color: #667eea;
+}
+.form-input {
+    width: 100%;
+    max-width: 100%; /* Prevent inputs from exceeding container */
+    padding: 12px;
+    border: 2px solid #e1e8ed;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+    box-sizing: border-box;
+    overflow: hidden; /* Prevent text overflow issues */
+}
+.form-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+.form-help {
+    display: block;
+    margin-top: 5px;
+    font-size: 12px;
+    color: #657786;
+}
+/* Image Preview Styles */
+.image-preview-container {
+    display: flex;
+    gap: 20px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+    overflow-x: hidden; /* Prevent horizontal overflow */
+    width: 100%;
+    box-sizing: border-box;
+}
+.current-image,
+.new-image {
+    flex: 1;
+    min-width: 200px;
+}
+.current-image h4,
+.new-image h4 {
+    margin-bottom: 10px;
+    color: #2c3e50;
+    font-size: 14px;
+}
+.profile-preview {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #e1e8ed;
+    transition: opacity 0.3s ease;
+}
+/* Modal Actions - Fixed to bottom */
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 30px;
+    padding: 20px;
+    border-top: 1px solid #e1e8ed;
+    background-color: white;
+    position: sticky;
+    bottom: 0;
+    flex-shrink: 0; /* Prevent actions from shrinking */
+}
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.btn-cancel {
+    background-color: #95a5a6;
+    color: white;
+}
+.btn-cancel:hover {
+    background-color: #7f8c8d;
+}
+.btn-save {
+    background-color: #27ae60;
+    color: white;
+}
+.btn-save:hover {
+    background-color: #219a52;
+}
+/* Edit Button Style */
+.btn-edit {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+.btn-edit:hover {
+    background-color: #2980b9;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .edit-profile-modal {
+        width: 95%;
+        max-height: 95vh;
+        margin: 2.5vh auto;
+    }
+    
+    .image-preview-container {
+        flex-direction: column;
+    }
+    
+    .modal-actions {
+        flex-direction: column-reverse;
+        position: sticky;
+        bottom: 0;
+    }
+    
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .modal-content {
+        padding: 15px;
+    }
+}
+
+/* Additional mobile fixes */
+@media (max-width: 480px) {
+    .edit-profile-modal {
+        width: 98%;
+        max-height: 98vh;
+        margin: 1vh auto;
+        overflow-x: hidden;
+    }
+    
+    .profile-preview {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .current-image,
+    .new-image {
+        min-width: auto;
+        max-width: 100%;
+        overflow: hidden;
+    }
+    
+    .image-preview-container {
+        gap: 10px; /* Reduce gap on very small screens */
+    }
+    
+    .form-input {
+        font-size: 16px; /* Prevent zoom on iOS */
+        padding: 10px; /* Slightly reduce padding */
+    }
+}
     </style>
 </head>
 <body>
@@ -814,6 +1011,66 @@
         </div>
     </div>
 
+    <!-- Edit Profile Modal -->
+<div id="editProfileModal" class="modal">
+    <div class="modal-content edit-profile-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-edit"></i> تعديل الملف الشخصي</h3>
+            <span class="close" onclick="closeEditProfileModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="editProfileForm" onsubmit="event.preventDefault(); saveProfileChanges();">
+                <!-- Author Name Section -->
+                <div class="form-group">
+                    <label for="editAuthorName">
+                        <i class="fas fa-user"></i>
+                        اسم المؤلف:
+                    </label>
+                    <input type="text" id="editAuthorName" class="form-input" 
+                           placeholder="أدخل اسم المؤلف الجديد" required maxlength="100">
+                </div>
+                
+                <!-- Profile Image Section -->
+                <div class="form-group">
+                    <label for="editProfileImage">
+                        <i class="fas fa-image"></i>
+                        الصورة الشخصية:
+                    </label>
+                    <input type="file" id="editProfileImage" class="form-input" 
+                           accept="image/*" onchange="previewNewImage(this)">
+                    <small class="form-help">
+                        اختر صورة جديدة (اختياري) - الحد الأقصى 5 ميجابايت
+                    </small>
+                </div>
+                
+                <!-- Image Preview Section -->
+                <div class="image-preview-container">
+                    <div class="current-image">
+                        <h4>الصورة الحالية:</h4>
+                        <img id="currentProfilePreview" class="profile-preview" alt="الصورة الحالية">
+                    </div>
+                    <div class="new-image" id="newImageContainer">
+                        <h4>الصورة الجديدة:</h4>
+                        <img id="newProfilePreview" class="profile-preview" alt="الصورة الجديدة" style="display: none;">
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="modal-actions">
+                    <button type="button" onclick="closeEditProfileModal()" class="btn btn-cancel">
+                        <i class="fas fa-times"></i>
+                        إلغاء
+                    </button>
+                    <button type="submit" class="btn btn-save">
+                        <i class="fas fa-save"></i>
+                        حفظ التغييرات
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
     <!-- Notification -->
     <div id="notification" class="notification"></div>
 
@@ -845,7 +1102,9 @@
     let storiesData = [];
     let selectedStories = new Set();
     let deleteCallback = null;
-    let ADMIN_PASSWORD = null; 
+    let ADMIN_PASSWORD = null;
+    let editCallback = null;
+    let currentEditStoryId = null;
 
     
     async function loadAdminPassword() {
@@ -1139,14 +1398,18 @@
         <div class="story-content">
             <div class="story-text">${story.storyText}</div>
             ${blackmailerSection}
-        </div>
-        <div class="story-actions">
-            <button onclick="deleteStory('${story.folderId}')" class="action-btn btn-delete">
-                <i class="fas fa-trash-alt"></i>
-                حذف القصة كاملة
-            </button>
-        </div>
-    `;
+        </div>   
+<div class="story-actions">
+    <button onclick="editProfile('${story.folderId}')" class="action-btn btn-edit">
+        <i class="fas fa-edit"></i>
+        تعديل الملف الشخصي
+    </button>
+    <button onclick="deleteStory('${story.folderId}')" class="action-btn btn-delete">
+        <i class="fas fa-trash-alt"></i>
+        حذف القصة كاملة
+    </button>
+</div>
+`;
     
     return storyCard;
 }
@@ -1383,6 +1646,150 @@ async function performDeleteProfileImage(storyId) {
     }
 }
 
+// Function to open edit profile modal
+window.editProfile = function(storyId) {
+    const story = storiesData.find(s => s.folderId === storyId);
+    if (!story) {
+        showNotification('القصة غير موجودة', 'error');
+        return;
+    }
+    
+    currentEditStoryId = storyId;
+    
+    // Populate the edit form
+    document.getElementById('editAuthorName').value = story.authorName;
+    document.getElementById('editProfileImage').value = '';
+    document.getElementById('currentProfilePreview').src = story.profileImageUrl;
+    document.getElementById('newProfilePreview').style.display = 'none';
+    
+    // Show the modal
+    document.getElementById('editProfileModal').style.display = 'block';
+};
+
+// Function to preview new profile image
+window.previewNewImage = function(input) {
+    const preview = document.getElementById('newProfilePreview');
+    const currentPreview = document.getElementById('currentProfilePreview');
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            currentPreview.style.opacity = '0.5';
+        };
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        preview.style.display = 'none';
+        currentPreview.style.opacity = '1';
+    }
+};
+
+// Function to save profile changes
+window.saveProfileChanges = async function() {
+    if (!currentEditStoryId) return;
+    
+    try {
+        showLoading();
+        
+        const story = storiesData.find(s => s.folderId === currentEditStoryId);
+        if (!story) {
+            throw new Error('القصة غير موجودة');
+        }
+        
+        const newName = document.getElementById('editAuthorName').value.trim();
+        const newImageFile = document.getElementById('editProfileImage').files[0];
+        
+        // Validate name
+        if (!newName) {
+            throw new Error('اسم المؤلف مطلوب');
+        }
+        
+        // Update author name
+        if (newName !== story.authorName) {
+            story.authorName = newName;
+            await updateStoryData(story);
+        }
+        
+        // Update profile image if new one is selected
+        if (newImageFile) {
+            // Validate file type
+            if (!newImageFile.type.startsWith('image/')) {
+                throw new Error('يرجى اختيار ملف صورة صالح');
+            }
+            
+            // Validate file size (max 5MB)
+            if (newImageFile.size > 5 * 1024 * 1024) {
+                throw new Error('حجم الصورة يجب أن يكون أقل من 5 ميجابايت');
+            }
+            
+            await updateProfileImage(story, newImageFile);
+        }
+        
+        // Update local data and UI
+        const storyIndex = storiesData.findIndex(s => s.folderId === currentEditStoryId);
+        if (storyIndex !== -1) {
+            storiesData[storyIndex] = story;
+        }
+        
+        displayStories();
+        closeEditProfileModal();
+        showNotification('تم تحديث الملف الشخصي بنجاح', 'success');
+        
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        showNotification('حدث خطأ في تحديث الملف الشخصي: ' + error.message, 'error');
+    } finally {
+        hideLoading();
+    }
+};
+
+// Function to update profile image in Firebase
+async function updateProfileImage(story, imageFile) {
+    try {
+        // Delete old profile image if it exists and is not default
+        if (story.profileImageUrl !== defaultProfileImage) {
+            const folderRef = ref(storage, story.folderPath);
+            const folderContents = await listAll(folderRef);
+            const oldProfileImage = folderContents.items.find(item => 
+                item.name.startsWith('profile.')
+            );
+            
+            if (oldProfileImage) {
+                await deleteObject(oldProfileImage);
+            }
+        }
+        
+        // Upload new profile image
+        const fileExtension = imageFile.name.split('.').pop();
+        const newProfileRef = ref(storage, `${story.folderPath}/profile.${fileExtension}`);
+        
+        await uploadBytes(newProfileRef, imageFile);
+        const newProfileUrl = await getDownloadURL(newProfileRef);
+        
+        // Update story data
+        story.profileImageUrl = newProfileUrl;
+        
+        console.log('Profile image updated successfully');
+        
+    } catch (error) {
+        console.error('Error updating profile image:', error);
+        throw error;
+    }
+}
+
+// Function to close edit profile modal
+window.closeEditProfileModal = function() {
+    document.getElementById('editProfileModal').style.display = 'none';
+    currentEditStoryId = null;
+    
+    // Reset form
+    document.getElementById('editAuthorName').value = '';
+    document.getElementById('editProfileImage').value = '';
+    document.getElementById('newProfilePreview').style.display = 'none';
+    document.getElementById('currentProfilePreview').style.opacity = '1';
+};
+
 // 3. ADD this helper function to update story data in Firebase:
 
 async function updateStoryData(story) {
@@ -1566,11 +1973,15 @@ async function updateStoryData(story) {
 
         // Close modal when clicking outside
         window.onclick = function(event) {
-            const modal = document.getElementById('confirmModal');
-            if (event.target === modal) {
-                closeModal();
-            }
-        };
+    const confirmModal = document.getElementById('confirmModal');
+    const editModal = document.getElementById('editProfileModal');
+    
+    if (event.target === confirmModal) {
+        closeModal();
+    } else if (event.target === editModal) {
+        closeEditProfileModal();
+    }
+};
 
         // Make functions globally available
         window.loadStories = loadStories;
