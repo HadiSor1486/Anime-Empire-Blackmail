@@ -2171,16 +2171,17 @@
                 }
             }
             
-            // Related Words (Picture Match)
+            // Related Words (Category Match - NO images in exam to keep URL small)
             if (examBuilder.selectedTypes.includes('relatedWords')) {
                 const container = document.getElementById('relatedWordsContainer');
                 for (let i = 0; i < container.children.length; i++) {
                     const name = document.getElementById(`examCatName-${i}`)?.value || '';
-                    const image = examTempImages[i] || '';
+                    // NOTE: We intentionally do NOT include images in exam data to keep URL size manageable
+                    // Images are stored as base64 which makes URLs too long and uncopiable
                     const words = examTempWords[i] || [];
                     
                     if (name && words.length > 0) {
-                        questions.relatedWords.push({ name, image, words });
+                        questions.relatedWords.push({ name, words }); // No image field
                     }
                 }
             }
@@ -2210,7 +2211,8 @@
                 id: examId,
                 title: examBuilder.title,
                 questions: questions,
-                createdAt: new Date().toISOString()
+                createdAt: new Date().toISOString(),
+                telegramChatId: TELEGRAM_CHAT_ID || ''  // Embed chat ID in exam data
             };
             
             // Save locally too
@@ -2452,8 +2454,8 @@
                 
                 sectionsHtml += `
                     <h3 style="margin: 2rem 0 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                        <span style="background: var(--secondary); padding: 0.5rem 1rem; border-radius: 12px;">&#x1F5BC;</span>
-                        Picture Word Match
+                        <span style="background: var(--secondary); padding: 0.5rem 1rem; border-radius: 12px;">&#x1F4C1;</span>
+                        Category Word Match
                     </h3>
                     <p style="color: var(--accent); text-align: center; margin-bottom: 1rem;" id="picMatchInstruction">
                         Click a word, then click the category it belongs to
@@ -2462,13 +2464,13 @@
                         Click placed words to return them to the word bank
                     </p>
                     <div class="quiz-question-card">
-                        <div class="match-container">
+                        <div class="match-container" style="flex-wrap: wrap; justify-content: center;">
                             ${exam.questions.relatedWords.map((cat, catIdx) => `
-                                <div class="match-column">
+                                <div class="match-column" style="min-width: 150px; flex: 1;">
                                     <div class="image-drop-zone" id="picCat-${catIdx}" data-catidx="${catIdx}"
-                                        onclick="selectPicCategory(${catIdx})">
-                                        ${cat.image ? `<img src="${cat.image}" alt="${cat.name}">` : ''}
-                                        <h5>${cat.name}</h5>
+                                        onclick="selectPicCategory(${catIdx})"
+                                        style="min-height: 120px; padding: 1rem;">
+                                        <h5 style="font-size: 1.1rem; margin-bottom: 0.5rem;">${cat.name}</h5>
                                         <div class="dropped-words" id="picDropped-${catIdx}"></div>
                                     </div>
                                 </div>
@@ -2594,7 +2596,31 @@
         }
         
         let selectedMatchStudent = null;
-        let matchedPairs = {}; // Track matched pairs: leftIdx -> { leftEl, rightEl, rightIdx }
+        let matchedPairs = {}; // Track matched pairs: leftIdx -> { leftEl, rightEl, rightIdx, colorIdx }
+        let usedColorIndices = []; // Track which colors are in use
+        
+        // Distinct colors for matched pairs
+        const matchPairColors = [
+            { bg: '#8b5cf6', border: '#7c3aed' },  // Purple
+            { bg: '#f472b6', border: '#ec4899' },  // Pink
+            { bg: '#22d3ee', border: '#06b6d4' },  // Cyan
+            { bg: '#fbbf24', border: '#f59e0b' },  // Yellow
+            { bg: '#10b981', border: '#059669' },  // Green
+            { bg: '#f97316', border: '#ea580c' },  // Orange
+            { bg: '#ef4444', border: '#dc2626' },  // Red
+            { bg: '#6366f1', border: '#4f46e5' },  // Indigo
+            { bg: '#14b8a6', border: '#0d9488' },  // Teal
+            { bg: '#a855f7', border: '#9333ea' },  // Violet
+        ];
+        
+        function getNextColorIndex() {
+            for (let i = 0; i < matchPairColors.length; i++) {
+                if (!usedColorIndices.includes(i)) {
+                    return i;
+                }
+            }
+            return 0; // Fallback to first color if all used
+        }
         
         function selectMatchStudent(element, idx, side) {
             // Check if this element is already matched - if so, unmatch it
@@ -2622,19 +2648,26 @@
             const leftEl = side === 'left' ? element : selectedMatchStudent.element;
             const rightEl = side === 'right' ? element : selectedMatchStudent.element;
             
-            studentAnswers.matchWords[leftIdx] = rightIdx;
-            matchedPairs[leftIdx] = { leftEl, rightEl, rightIdx };
+            // Get a unique color for this pair
+            const colorIdx = getNextColorIndex();
+            usedColorIndices.push(colorIdx);
+            const color = matchPairColors[colorIdx];
             
-            // Visual feedback - mark as matched (clickable to unmatch)
+            studentAnswers.matchWords[leftIdx] = rightIdx;
+            matchedPairs[leftIdx] = { leftEl, rightEl, rightIdx, colorIdx };
+            
+            // Visual feedback - mark as matched with unique color (clickable to unmatch)
             leftEl.classList.remove('selected');
             rightEl.classList.remove('selected');
             leftEl.classList.add('matched');
             rightEl.classList.add('matched');
             
-            leftEl.style.background = 'var(--accent)';
-            leftEl.style.borderColor = 'var(--accent)';
-            rightEl.style.background = 'var(--accent)';
-            rightEl.style.borderColor = 'var(--accent)';
+            leftEl.style.background = color.bg;
+            leftEl.style.borderColor = color.border;
+            leftEl.style.color = 'white';
+            rightEl.style.background = color.bg;
+            rightEl.style.borderColor = color.border;
+            rightEl.style.color = 'white';
             
             selectedMatchStudent = null;
             updateProgress();
@@ -2659,13 +2692,19 @@
             if (leftIdx !== null && matchedPairs[leftIdx]) {
                 const pair = matchedPairs[leftIdx];
                 
+                // Release the color back to the pool
+                const colorIdx = pair.colorIdx;
+                usedColorIndices = usedColorIndices.filter(c => c !== colorIdx);
+                
                 // Reset both elements
                 pair.leftEl.classList.remove('matched', 'selected');
                 pair.rightEl.classList.remove('matched', 'selected');
                 pair.leftEl.style.background = '';
                 pair.leftEl.style.borderColor = '';
+                pair.leftEl.style.color = '';
                 pair.rightEl.style.background = '';
                 pair.rightEl.style.borderColor = '';
+                pair.rightEl.style.color = '';
                 
                 // Remove from answers
                 delete studentAnswers.matchWords[leftIdx];
@@ -2920,7 +2959,9 @@
         }
         
         function sendResultsToTelegram(examTitle, name, correct, total, percentage, details) {
-            if (!TELEGRAM_CHAT_ID) {
+            // Use chat ID from exam data (embedded in URL) or fallback to local setting
+            const chatId = currentExamData?.telegramChatId || TELEGRAM_CHAT_ID;
+            if (!chatId) {
                 console.log('No Telegram Chat ID configured');
                 return;
             }
@@ -2963,7 +3004,7 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    chat_id: TELEGRAM_CHAT_ID,
+                    chat_id: chatId,
                     text: message,
                     parse_mode: 'Markdown'
                 })
@@ -4159,3 +4200,5 @@
     </script>
 </body>
 </html>
+
+
