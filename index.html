@@ -1289,6 +1289,79 @@
             50% { transform: scale(1.2); }
             100% { transform: scale(1); }
         }
+
+        /* Expired/Submitted Exam Styles */
+        .exam-expired {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .exam-expired-icon {
+            width: 120px;
+            height: 120px;
+            background: var(--error);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            margin: 0 auto 1.5rem;
+        }
+
+        .exam-expired h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: var(--error);
+        }
+
+        .exam-expired p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* Matched word styling */
+        .option-btn.matched {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .option-btn.matched:hover {
+            background: var(--warning);
+            border-color: var(--warning);
+            cursor: pointer;
+        }
+
+        /* Placed word in picture match - clickable to return */
+        .word-chip.placed-word {
+            background: linear-gradient(135deg, var(--accent) 0%, #0891b2 100%);
+            position: relative;
+        }
+
+        .word-chip.placed-word:hover {
+            background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%);
+        }
+
+        .word-chip.placed-word::after {
+            content: '×';
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 18px;
+            height: 18px;
+            background: var(--error);
+            border-radius: 50%;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .word-chip.placed-word:hover::after {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -1335,10 +1408,11 @@
 
     <script>
         // ==================== CONFIGURATION ====================
-        const TELEGRAM_BOT_TOKEN = '7925183700:AAGsR8DBdigCsbwxtL77S9m2Cp2Mbnj9qxw';
+        const TELEGRAM_BOT_TOKEN = '6759901283:AAGGfZvU2EX59mK6uefmHV69GJ-NKPbCdQ4';
         const TELEGRAM_CHAT_ID = '1185516622';
         const STORAGE_KEY = 'arabicByRolla';
         const EXAMS_STORAGE_KEY = 'arabicByRollaExams';
+        const SUBMITTED_EXAMS_KEY = 'arabicByRollaSubmittedExams';
         
         // ==================== DATA STORAGE ====================
         let quizData = {
@@ -1374,6 +1448,46 @@
         function saveExams() {
             localStorage.setItem(EXAMS_STORAGE_KEY, JSON.stringify(examsData));
         }
+
+        // ==================== SUBMISSION TRACKING ====================
+        function getSubmittedExams() {
+            try {
+                return JSON.parse(localStorage.getItem(SUBMITTED_EXAMS_KEY) || '{}');
+            } catch {
+                return {};
+            }
+        }
+        
+        function markExamAsSubmitted(examId, studentName, score, total) {
+            const submitted = getSubmittedExams();
+            if (!submitted[examId]) submitted[examId] = [];
+            submitted[examId].push({
+                name: studentName,
+                score: score,
+                total: total,
+                timestamp: new Date().toISOString()
+            });
+            localStorage.setItem(SUBMITTED_EXAMS_KEY, JSON.stringify(submitted));
+        }
+        
+        function hasStudentSubmitted(examId, studentName) {
+            const submitted = getSubmittedExams();
+            if (!submitted[examId]) return false;
+            return submitted[examId].some(s => s.name.toLowerCase().trim() === studentName.toLowerCase().trim());
+        }
+
+        function isExamExpired(examId) {
+            // Check if exam is marked as expired/closed
+            const exam = examsData[examId];
+            return exam && exam.expired === true;
+        }
+
+        function markExamAsExpired(examId) {
+            if (examsData[examId]) {
+                examsData[examId].expired = true;
+                saveExams();
+            }
+        }
         
         // Check if we're in student mode from URL
         function checkStudentMode() {
@@ -1385,8 +1499,26 @@
                 document.getElementById('mainHeader').style.display = 'none';
                 renderStudentExam();
                 return true;
+            } else if (examId && !examsData[examId]) {
+                // Exam not found or deleted
+                isStudentMode = true;
+                currentExamId = examId;
+                document.getElementById('mainHeader').style.display = 'none';
+                renderExamNotFound();
+                return true;
             }
             return false;
+        }
+
+        function renderExamNotFound() {
+            document.getElementById('mainContainer').innerHTML = `
+                <div class="exam-expired">
+                    <div class="exam-expired-icon">&#x26A0;</div>
+                    <h3>Exam Not Found</h3>
+                    <p>This exam link may have expired, been deleted, or is no longer available.</p>
+                    <p style="margin-top: 1rem;">Please contact your teacher for a new link.</p>
+                </div>
+            `;
         }
         
         // Reset all data
@@ -1401,6 +1533,7 @@
                 examsData = {};
                 saveData();
                 saveExams();
+                localStorage.removeItem(SUBMITTED_EXAMS_KEY);
                 goHome();
                 createConfetti();
             }
@@ -1963,7 +2096,8 @@
                 title: examBuilder.title,
                 types: examBuilder.selectedTypes,
                 questions: examBuilder.questions,
-                createdAt: new Date().toISOString()
+                createdAt: new Date().toISOString(),
+                expired: false
             };
             saveExams();
             
@@ -2023,26 +2157,75 @@
         }
         
         // ==================== STUDENT VIEW ====================
+        let matchedPairsStudent = {}; // Track matched pairs: leftIdx -> { leftEl, rightEl, rightIdx }
+        let placedPicWords = {}; // Track placed words: wordIdx -> { catIdx, element, originalEl, word, correctCatIdx }
+        
         function renderStudentExam() {
             const exam = examsData[currentExamId];
             if (!exam) {
+                renderExamNotFound();
+                return;
+            }
+
+            // Check if exam is expired
+            if (exam.expired) {
                 document.getElementById('mainContainer').innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">&#x26A0;</div>
-                        <h3>Exam Not Found</h3>
-                        <p>This exam link may have expired or been deleted.</p>
+                    <div class="exam-expired">
+                        <div class="exam-expired-icon">&#x23F0;</div>
+                        <h3>Exam Closed</h3>
+                        <p>This exam is no longer accepting submissions.</p>
+                        <p style="margin-top: 1rem;">Please contact your teacher if you need to retake it.</p>
                     </div>
                 `;
                 return;
             }
             
             studentAnswers = {};
+            matchedPairsStudent = {};
+            placedPicWords = {};
             
             if (!studentName) {
                 renderStudentNameEntry(exam);
             } else {
-                renderStudentQuestions(exam);
+                // Check if student already submitted
+                if (hasStudentSubmitted(currentExamId, studentName)) {
+                    renderAlreadySubmitted(exam);
+                } else {
+                    renderStudentQuestions(exam);
+                }
             }
+        }
+
+        function renderAlreadySubmitted(exam) {
+            const submitted = getSubmittedExams();
+            const studentSubmission = submitted[currentExamId]?.find(
+                s => s.name.toLowerCase().trim() === studentName.toLowerCase().trim()
+            );
+
+            document.getElementById('mainContainer').innerHTML = `
+                <div class="student-header">
+                    <h2>${exam.title}</h2>
+                    <p>Exam Already Completed</p>
+                </div>
+                
+                <div class="exam-expired" style="background: var(--bg-card); border-radius: 24px; margin-top: 2rem;">
+                    <div class="exam-expired-icon" style="background: var(--warning);">&#x2713;</div>
+                    <h3 style="color: var(--warning);">You've Already Submitted</h3>
+                    <p>Hello ${studentName}, you have already completed this exam.</p>
+                    ${studentSubmission ? `
+                        <p style="margin-top: 1rem;">
+                            <strong>Your Score:</strong> ${studentSubmission.score}/${studentSubmission.total} 
+                            (${Math.round((studentSubmission.score / studentSubmission.total) * 100)}%)
+                        </p>
+                        <p style="margin-top: 0.5rem; font-size: 0.9rem;">
+                            Submitted on: ${new Date(studentSubmission.timestamp).toLocaleString()}
+                        </p>
+                    ` : ''}
+                    <p style="margin-top: 1.5rem; color: var(--text-muted);">
+                        Each student can only submit the exam once. Contact your teacher if you need assistance.
+                    </p>
+                </div>
+            `;
         }
         
         function renderStudentNameEntry(exam) {
@@ -2064,7 +2247,8 @@
                 </div>
                 
                 <div style="text-align: center; margin-top: 2rem; color: var(--text-muted);">
-                    <p>You can review and edit your answers before submitting.</p>
+                    <p>You can review and change your answers before submitting.</p>
+                    <p style="color: var(--warning); margin-top: 0.5rem;">Note: You can only submit this exam once!</p>
                     <p>Good luck!</p>
                 </div>
             `;
@@ -2080,6 +2264,14 @@
                 alert('Please enter your name to start the exam');
                 return;
             }
+
+            // Check if this student already submitted
+            if (hasStudentSubmitted(currentExamId, name)) {
+                studentName = name;
+                renderAlreadySubmitted(examsData[currentExamId]);
+                return;
+            }
+
             studentName = name;
             renderStudentQuestions(examsData[currentExamId]);
         }
@@ -2106,7 +2298,7 @@
                     sectionsHtml += `
                         <div class="quiz-question-card" id="studentQ-fillBlank-${i}">
                             <p class="question-text">
-                                <strong>Q${questionNum}.</strong> ${q.sentence.replace('[BLANK]', `<span class="blank-space" id="blank-fb-${i}">???</span>`)}
+                                <strong>Q${questionNum}.</strong> ${q.sentence.replace('[BLANK]', `<span class="blank-space" id="blank-fb-${i}" onclick="clearFillBlankAnswer(${i})">???</span>`)}
                             </p>
                             <div class="options-grid">
                                 ${options.map((opt, oi) => `
@@ -2114,6 +2306,7 @@
                                         id="opt-fb-${i}-${oi}">${opt}</button>
                                 `).join('')}
                             </div>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">Click the answer in the blank to change it</p>
                         </div>
                     `;
                 });
@@ -2141,6 +2334,7 @@
                                     FALSE
                                 </button>
                             </div>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">Click to select/change your answer</p>
                         </div>
                     `;
                 });
@@ -2157,7 +2351,7 @@
                         <span style="background: var(--accent); padding: 0.5rem 1rem; border-radius: 12px; color: #1e293b;">&#x1F517;</span>
                         Match the Words
                     </h3>
-                    <p style="color: var(--text-muted); margin-bottom: 1rem;">Click a word from each column to match them.</p>
+                    <p style="color: var(--text-muted); margin-bottom: 1rem;">Click a word from each column to match them. <strong>Click a matched pair to unmatch.</strong></p>
                     <div class="quiz-question-card">
                         <div class="match-container">
                             <div class="match-column">
@@ -2198,7 +2392,7 @@
                         Picture Word Match
                     </h3>
                     <p style="color: var(--accent); text-align: center; margin-bottom: 1rem;" id="picMatchInstruction">
-                        Click a word, then click the category it belongs to
+                        Click a word, then click the category it belongs to. <strong>Click a placed word to return it.</strong>
                     </p>
                     <div class="quiz-question-card">
                         <div class="match-container">
@@ -2243,6 +2437,9 @@
                     <p style="margin-bottom: 1rem; color: var(--text-muted);">
                         Review your answers above. You can change them before submitting.
                     </p>
+                    <p style="margin-bottom: 1rem; color: var(--warning);">
+                        Warning: You can only submit once! Make sure all answers are correct.
+                    </p>
                     <button class="btn btn-gradient" onclick="submitExam()" style="font-size: 1.2rem; padding: 1.25rem 3rem;">
                         Submit Exam
                     </button>
@@ -2254,6 +2451,28 @@
             if (!studentAnswers.trueFalse) studentAnswers.trueFalse = {};
             if (!studentAnswers.matchWords) studentAnswers.matchWords = {};
             if (!studentAnswers.relatedWords) studentAnswers.relatedWords = {};
+        }
+
+        // Clear fill in the blank answer (allows changing)
+        function clearFillBlankAnswer(index) {
+            const blank = document.getElementById(`blank-fb-${index}`);
+            if (blank && studentAnswers.fillBlank[index] !== undefined) {
+                // Reset the blank
+                blank.textContent = '???';
+                blank.classList.remove('filled');
+                
+                // Reset all option buttons for this question
+                const card = document.getElementById(`studentQ-fillBlank-${index}`);
+                card.querySelectorAll('.option-btn').forEach(btn => {
+                    btn.classList.remove('selected');
+                });
+                card.classList.remove('answered');
+                
+                // Remove the answer
+                delete studentAnswers.fillBlank[index];
+                
+                updateProgress();
+            }
         }
         
         function selectStudentAnswer(type, index, value) {
@@ -2295,7 +2514,11 @@
         let selectedMatchStudent = null;
         
         function selectMatchStudent(element, idx, side) {
-            if (element.disabled) return;
+            // Check if this element is already matched - if so, unmatch it
+            if (element.classList.contains('matched')) {
+                unmatchWord(element, idx, side);
+                return;
+            }
             
             if (!selectedMatchStudent) {
                 selectedMatchStudent = { element, idx, side };
@@ -2313,22 +2536,51 @@
             // Record the match
             const leftIdx = side === 'left' ? idx : selectedMatchStudent.idx;
             const rightIdx = side === 'right' ? idx : selectedMatchStudent.idx;
+            const leftEl = side === 'left' ? element : selectedMatchStudent.element;
+            const rightEl = side === 'right' ? element : selectedMatchStudent.element;
             
             studentAnswers.matchWords[leftIdx] = rightIdx;
+            matchedPairsStudent[leftIdx] = { leftEl, rightEl, rightIdx };
             
-            // Visual feedback
-            selectedMatchStudent.element.classList.add('selected');
-            selectedMatchStudent.element.disabled = true;
-            element.classList.add('selected');
-            element.disabled = true;
-            
-            selectedMatchStudent.element.style.background = 'var(--accent)';
-            selectedMatchStudent.element.style.borderColor = 'var(--accent)';
-            element.style.background = 'var(--accent)';
-            element.style.borderColor = 'var(--accent)';
+            // Visual feedback - mark as matched (clickable to unmatch)
+            leftEl.classList.remove('selected');
+            rightEl.classList.remove('selected');
+            leftEl.classList.add('matched');
+            rightEl.classList.add('matched');
             
             selectedMatchStudent = null;
             updateProgress();
+        }
+        
+        function unmatchWord(element, idx, side) {
+            // Find and remove the match
+            let leftIdx = null;
+            
+            if (side === 'left') {
+                leftIdx = idx;
+            } else {
+                // Find which left word this right word is matched to
+                for (const [lIdx, pair] of Object.entries(matchedPairsStudent)) {
+                    if (pair.rightIdx === idx) {
+                        leftIdx = parseInt(lIdx);
+                        break;
+                    }
+                }
+            }
+            
+            if (leftIdx !== null && matchedPairsStudent[leftIdx]) {
+                const pair = matchedPairsStudent[leftIdx];
+                
+                // Reset both elements
+                pair.leftEl.classList.remove('matched', 'selected');
+                pair.rightEl.classList.remove('matched', 'selected');
+                
+                // Remove from answers
+                delete studentAnswers.matchWords[leftIdx];
+                delete matchedPairsStudent[leftIdx];
+                
+                updateProgress();
+            }
         }
         
         let selectedPicWordStudent = null;
@@ -2348,6 +2600,32 @@
             document.getElementById('picMatchInstruction').style.color = 'var(--accent)';
         }
         
+        function returnPicWord(wordIdx) {
+            const placed = placedPicWords[wordIdx];
+            if (!placed) return;
+            
+            // Remove from category answers
+            if (studentAnswers.relatedWords[placed.catIdx]) {
+                studentAnswers.relatedWords[placed.catIdx] = studentAnswers.relatedWords[placed.catIdx].filter(
+                    w => w.wordIdx !== wordIdx
+                );
+            }
+            
+            // Remove the placed element
+            placed.element.remove();
+            
+            // Show original word in bank again
+            placed.originalEl.style.display = 'inline-block';
+            
+            // Remove from tracking
+            delete placedPicWords[wordIdx];
+            
+            document.getElementById('picMatchInstruction').textContent = 'Word returned! Click a word to place it again';
+            document.getElementById('picMatchInstruction').style.color = 'var(--accent)';
+            
+            updateProgress();
+        }
+        
         function selectPicCategory(catIdx) {
             if (!selectedPicWordStudent) {
                 document.getElementById('picMatchInstruction').textContent = 'First, click a word from the word bank below!';
@@ -2357,21 +2635,33 @@
             
             const wordEl = selectedPicWordStudent.element;
             const dropZone = document.getElementById(`picDropped-${catIdx}`);
+            const wordIdx = selectedPicWordStudent.wordIdx;
             
             // Record answer
             if (!studentAnswers.relatedWords[catIdx]) studentAnswers.relatedWords[catIdx] = [];
             studentAnswers.relatedWords[catIdx].push({
-                wordIdx: selectedPicWordStudent.wordIdx,
+                wordIdx: wordIdx,
                 word: wordEl.textContent,
                 correctCatIdx: selectedPicWordStudent.correctCatIdx
             });
             
-            // Move word to category
+            // Move word to category - make it clickable to return
             const newWord = document.createElement('span');
-            newWord.className = 'word-chip';
+            newWord.className = 'word-chip placed-word';
             newWord.textContent = wordEl.textContent;
-            newWord.style.cursor = 'default';
+            newWord.style.cursor = 'pointer';
+            newWord.title = 'Click to return this word';
+            newWord.onclick = () => returnPicWord(wordIdx);
             dropZone.appendChild(newWord);
+            
+            // Track the placed word
+            placedPicWords[wordIdx] = {
+                catIdx: catIdx,
+                element: newWord,
+                originalEl: wordEl,
+                word: wordEl.textContent,
+                correctCatIdx: selectedPicWordStudent.correctCatIdx
+            };
             
             wordEl.style.display = 'none';
             
@@ -2379,7 +2669,7 @@
             document.querySelectorAll('.image-drop-zone').forEach(zone => zone.classList.remove('selectable'));
             selectedPicWordStudent = null;
             
-            document.getElementById('picMatchInstruction').textContent = 'Click a word, then click the category it belongs to';
+            document.getElementById('picMatchInstruction').textContent = 'Click a word to place it, or click a placed word to return it';
             document.getElementById('picMatchInstruction').style.color = 'var(--accent)';
             
             updateProgress();
@@ -2417,11 +2707,18 @@
         }
         
         function submitExam() {
-            if (!confirm('Are you sure you want to submit your exam? You cannot change your answers after submitting.')) {
+            if (!confirm('Are you sure you want to submit your exam? You cannot change your answers after submitting, and you can only submit ONCE.')) {
                 return;
             }
             
             const exam = examsData[currentExamId];
+            
+            // Double check if already submitted
+            if (hasStudentSubmitted(currentExamId, studentName)) {
+                alert('You have already submitted this exam!');
+                renderAlreadySubmitted(exam);
+                return;
+            }
             
             // Calculate score
             let totalQuestions = 0;
@@ -2433,9 +2730,9 @@
                 exam.questions.fillBlank.forEach((q, i) => {
                     totalQuestions++;
                     const studentAns = studentAnswers.fillBlank[i];
-                    const isCorrect = studentAns && studentAns.toLowerCase() === q.blankWord.toLowerCase();
+                    const isCorrect = studentAns && studentAns.toLowerCase().trim() === q.blankWord.toLowerCase().trim();
                     if (isCorrect) correctAnswers++;
-                    resultDetails.push(`Fill Blank Q${i+1}: ${studentAns || '(no answer)'} - ${isCorrect ? 'Correct' : 'Wrong (Answer: ' + q.blankWord + ')'}`);
+                    resultDetails.push(`Fill Blank Q${i+1}: ${studentAns || '(no answer)'} - ${isCorrect ? '✓ Correct' : '✗ Wrong (Answer: ' + q.blankWord + ')'}`);
                 });
             }
             
@@ -2446,7 +2743,7 @@
                     const studentAns = studentAnswers.trueFalse[i];
                     const isCorrect = studentAns === q.isTrue;
                     if (isCorrect) correctAnswers++;
-                    resultDetails.push(`T/F Q${i+1}: ${studentAns === undefined ? '(no answer)' : (studentAns ? 'True' : 'False')} - ${isCorrect ? 'Correct' : 'Wrong (Answer: ' + (q.isTrue ? 'True' : 'False') + ')'}`);
+                    resultDetails.push(`T/F Q${i+1}: ${studentAns === undefined ? '(no answer)' : (studentAns ? 'True' : 'False')} - ${isCorrect ? '✓ Correct' : '✗ Wrong (Answer: ' + (q.isTrue ? 'True' : 'False') + ')'}`);
                 });
             }
             
@@ -2457,7 +2754,7 @@
                     const studentMatch = studentAnswers.matchWords[i];
                     const isCorrect = studentMatch === i;
                     if (isCorrect) correctAnswers++;
-                    resultDetails.push(`Match Q${i+1}: ${q.word1} - ${isCorrect ? 'Correct' : 'Wrong'}`);
+                    resultDetails.push(`Match Q${i+1}: ${q.word1} ↔ ${q.word2} - ${isCorrect ? '✓ Correct' : '✗ Wrong'}`);
                 });
             }
             
@@ -2473,14 +2770,17 @@
                     words.forEach(w => {
                         const isCorrect = parseInt(catIdx) === w.correctCatIdx;
                         if (isCorrect) correctAnswers++;
-                        resultDetails.push(`Picture Match: "${w.word}" to "${exam.questions.relatedWords[catIdx].name}" - ${isCorrect ? 'Correct' : 'Wrong'}`);
+                        resultDetails.push(`Picture Match: "${w.word}" → "${exam.questions.relatedWords[catIdx].name}" - ${isCorrect ? '✓ Correct' : '✗ Wrong'}`);
                     });
                 });
             }
             
             const score = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
             
-            // Send to Telegram
+            // Mark exam as submitted for this student
+            markExamAsSubmitted(currentExamId, studentName, correctAnswers, totalQuestions);
+            
+            // Send to Telegram with grade
             sendToTelegram(exam.title, studentName, correctAnswers, totalQuestions, score, resultDetails);
             
             // Show thank you
@@ -2490,6 +2790,15 @@
                     <div class="checkmark">&#x2713;</div>
                     <h2 style="margin-bottom: 0.5rem;">Exam Submitted!</h2>
                     <p style="color: var(--text-muted); margin-bottom: 2rem;">Thank you, ${studentName}!</p>
+                    
+                    <div style="background: var(--bg-card); padding: 2rem; border-radius: 20px; margin-bottom: 2rem;">
+                        <h3 style="color: var(--accent); margin-bottom: 1rem;">Your Results</h3>
+                        <div style="font-size: 3rem; font-weight: bold; color: ${score >= 70 ? 'var(--success)' : score >= 50 ? 'var(--warning)' : 'var(--error)'};">
+                            ${score}%
+                        </div>
+                        <p style="font-size: 1.2rem; margin-top: 0.5rem;">${correctAnswers} out of ${totalQuestions} correct</p>
+                    </div>
+                    
                     <p style="font-size: 1.1rem;">Your answers have been sent to your teacher.</p>
                     <p style="color: var(--text-muted); margin-top: 1rem;">You can close this window now.</p>
                 </div>
@@ -2500,22 +2809,30 @@
         }
         
         async function sendToTelegram(examTitle, name, correct, total, percentage, details) {
+            // Format the message with clear grade display
+            const gradeEmoji = percentage >= 90 ? '🌟' : percentage >= 70 ? '✅' : percentage >= 50 ? '⚠️' : '❌';
+            
             const message = `
-*New Exam Submission*
-_________________________________
+📝 *NEW EXAM SUBMISSION*
+━━━━━━━━━━━━━━━━━━━━━
 
-*Exam:* ${examTitle}
-*Student:* ${name}
-*Score:* ${correct}/${total} (${percentage}%)
+📚 *Exam:* ${examTitle}
+👤 *Student:* ${name}
 
-*Details:*
+${gradeEmoji} *GRADE: ${percentage}%*
+📊 *Score: ${correct}/${total}*
+
+━━━━━━━━━━━━━━━━━━━━━
+📋 *Answer Details:*
+
 ${details.join('\n')}
 
-_Submitted at ${new Date().toLocaleString()}_
-            `;
+━━━━━━━━━━━━━━━━━━━━━
+🕐 _Submitted: ${new Date().toLocaleString()}_
+            `.trim();
             
             try {
-                await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -2524,6 +2841,11 @@ _Submitted at ${new Date().toLocaleString()}_
                         parse_mode: 'Markdown'
                     })
                 });
+                
+                const result = await response.json();
+                if (!result.ok) {
+                    console.error('Telegram API error:', result);
+                }
             } catch (error) {
                 console.error('Failed to send to Telegram:', error);
             }
