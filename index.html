@@ -1185,8 +1185,9 @@
             background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
         }
         
+        /* Decoy words look identical to regular words - no visual difference! */
         .word-chip.decoy {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            /* Same as regular word-chip - no special styling */
         }
         
         .word-chip.placed-word {
@@ -1593,9 +1594,109 @@
         let currentView = 'main';
         
         // ==================== URL COMPRESSION ====================
-        // Use LZ-String for aggressive compression - keeps URLs small regardless of exam size
+        // Super aggressive compression for minimal URL length
+        
+        // Minify exam data by using short keys
+        function minifyExamData(exam) {
+            const minified = {
+                t: exam.title,
+                c: exam.telegramChatId || '',
+                q: {}
+            };
+            
+            // Minify fillBlank questions
+            if (exam.questions.fillBlank && exam.questions.fillBlank.length > 0) {
+                minified.q.f = exam.questions.fillBlank.map(q => ({
+                    s: q.sentence,
+                    b: q.blankWord,
+                    o: q.options.filter(o => o) // Remove empty options
+                }));
+            }
+            
+            // Minify trueFalse questions  
+            if (exam.questions.trueFalse && exam.questions.trueFalse.length > 0) {
+                minified.q.t = exam.questions.trueFalse.map(q => ({
+                    s: q.statement,
+                    a: q.isTrue ? 1 : 0
+                }));
+            }
+            
+            // Minify matchWords pairs
+            if (exam.questions.matchWords && exam.questions.matchWords.length > 0) {
+                minified.q.m = exam.questions.matchWords.map(p => [p.word1, p.word2]);
+            }
+            
+            // Minify relatedWords categories
+            if (exam.questions.relatedWords && exam.questions.relatedWords.length > 0) {
+                minified.q.r = exam.questions.relatedWords.map(c => ({
+                    n: c.name,
+                    w: c.words
+                }));
+            }
+            
+            // Minify decoy words
+            if (exam.questions.decoyWords && exam.questions.decoyWords.length > 0) {
+                minified.q.d = exam.questions.decoyWords;
+            }
+            
+            return minified;
+        }
+        
+        // Expand minified data back to full format
+        function expandExamData(minified) {
+            const expanded = {
+                id: 'embedded',
+                title: minified.t,
+                telegramChatId: minified.c || '',
+                questions: {
+                    fillBlank: [],
+                    trueFalse: [],
+                    matchWords: [],
+                    relatedWords: [],
+                    decoyWords: []
+                }
+            };
+            
+            if (minified.q.f) {
+                expanded.questions.fillBlank = minified.q.f.map(q => ({
+                    sentence: q.s,
+                    blankWord: q.b,
+                    options: q.o
+                }));
+            }
+            
+            if (minified.q.t) {
+                expanded.questions.trueFalse = minified.q.t.map(q => ({
+                    statement: q.s,
+                    isTrue: q.a === 1
+                }));
+            }
+            
+            if (minified.q.m) {
+                expanded.questions.matchWords = minified.q.m.map(p => ({
+                    word1: p[0],
+                    word2: p[1]
+                }));
+            }
+            
+            if (minified.q.r) {
+                expanded.questions.relatedWords = minified.q.r.map(c => ({
+                    name: c.n,
+                    words: c.w
+                }));
+            }
+            
+            if (minified.q.d) {
+                expanded.questions.decoyWords = minified.q.d;
+            }
+            
+            return expanded;
+        }
+        
         function compressExamData(exam) {
-            const json = JSON.stringify(exam);
+            // First minify the data structure
+            const minified = minifyExamData(exam);
+            const json = JSON.stringify(minified);
             // Use LZ-String's URI-safe compression
             return LZString.compressToEncodedURIComponent(json);
         }
@@ -1604,7 +1705,13 @@
             try {
                 const json = LZString.decompressFromEncodedURIComponent(compressed);
                 if (!json) return null;
-                return JSON.parse(json);
+                const parsed = JSON.parse(json);
+                
+                // Check if it's minified format (has 't' key) or full format (has 'title' key)
+                if (parsed.t !== undefined) {
+                    return expandExamData(parsed);
+                }
+                return parsed;
             } catch (e) {
                 console.error('Failed to decompress exam data:', e);
                 return null;
@@ -2370,26 +2477,22 @@
                 return;
             }
             
+            // Build the full exam object for local storage
             const examId = 'e_' + Date.now().toString(36);
-            const exam = {
-                id: examId,
-                t: examBuilder.title, // Shortened key names for compression
-                q: questions,
-                c: TELEGRAM_CHAT_ID || ''
-            };
-            
-            // Save locally too
-            examsData[examId] = {
+            const fullExam = {
                 id: examId,
                 title: examBuilder.title,
                 questions: questions,
                 telegramChatId: TELEGRAM_CHAT_ID || '',
                 createdAt: new Date().toISOString()
             };
+            
+            // Save locally with full format
+            examsData[examId] = fullExam;
             saveExams();
             
-            // Generate URL with COMPRESSED data
-            const compressedData = compressExamData(exam);
+            // Generate URL with SUPER COMPRESSED data using minification
+            const compressedData = compressExamData(fullExam);
             const baseUrl = window.location.href.split('?')[0];
             const examLink = `${baseUrl}?e=${compressedData}`;
             
@@ -2399,19 +2502,25 @@
             examTempDecoyWords = [];
             
             // Show link with size comparison
-            const originalSize = JSON.stringify(exam).length;
+            const originalSize = JSON.stringify(fullExam).length;
             const compressedSize = compressedData.length;
             const savings = Math.round((1 - compressedSize / originalSize) * 100);
             
+            const totalLinkLength = examLink.length;
             const body = document.getElementById('modalBody');
             body.innerHTML = `
                 <div class="success-animation">
                     <div class="checkmark">✓</div>
                     <h3>Exam Created Successfully!</h3>
                     <p style="color: var(--text-secondary); margin-bottom: 1rem;">Share this compact link with your students</p>
-                    <p style="color: var(--success); font-size: 0.875rem;">
-                        📦 Link compressed by ${savings}% (${compressedSize} chars vs ${originalSize} original)
-                    </p>
+                    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 0.5rem;">
+                        <span style="background: rgba(16, 185, 129, 0.15); color: var(--success); padding: 0.375rem 0.75rem; border-radius: var(--radius-full); font-size: 0.8125rem; font-weight: 600;">
+                            ${savings}% smaller
+                        </span>
+                        <span style="background: rgba(6, 182, 212, 0.15); color: var(--accent); padding: 0.375rem 0.75rem; border-radius: var(--radius-full); font-size: 0.8125rem; font-weight: 600;">
+                            ${totalLinkLength} chars total
+                        </span>
+                    </div>
                 </div>
                 
                 <div class="link-display">
@@ -2553,7 +2662,12 @@
                 `;
                 exam.questions.fillBlank.forEach((q, i) => {
                     questionNum++;
-                    const options = [q.blankWord, ...q.options].sort(() => Math.random() - 0.5);
+                    const options = [q.blankWord, ...q.options];
+                    // Fisher-Yates shuffle
+                    for (let i = options.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [options[i], options[j]] = [options[j], options[i]];
+                    }
                     sectionsHtml += `
                         <div class="quiz-question-card" id="studentQ-fillBlank-${i}">
                             <p class="question-text">
@@ -2600,8 +2714,17 @@
             // Match Words
             if (exam.questions.matchWords && exam.questions.matchWords.length > 0) {
                 totalQuestions += exam.questions.matchWords.length;
-                const leftWords = exam.questions.matchWords.map((p, i) => ({ word: p.word1, idx: i })).sort(() => Math.random() - 0.5);
-                const rightWords = exam.questions.matchWords.map((p, i) => ({ word: p.word2, idx: i })).sort(() => Math.random() - 0.5);
+                const leftWords = exam.questions.matchWords.map((p, i) => ({ word: p.word1, idx: i }));
+                const rightWords = exam.questions.matchWords.map((p, i) => ({ word: p.word2, idx: i }));
+                // Fisher-Yates shuffle for both columns
+                for (let i = leftWords.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [leftWords[i], leftWords[j]] = [leftWords[j], leftWords[i]];
+                }
+                for (let i = rightWords.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [rightWords[i], rightWords[j]] = [rightWords[j], rightWords[i]];
+                }
                 
                 sectionsHtml += `
                     <h3 style="margin: 2rem 0 1rem; display: flex; align-items: center; gap: 0.625rem;">
@@ -2649,7 +2772,11 @@
                 
                 // Only count real words for total (not decoys)
                 totalQuestions += allWords.filter(w => !w.isDecoy).length;
-                allWords = allWords.sort(() => Math.random() - 0.5);
+                // Fisher-Yates shuffle for truly random order
+                for (let i = allWords.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [allWords[i], allWords[j]] = [allWords[j], allWords[i]];
+                }
                 
                 sectionsHtml += `
                     <h3 style="margin: 2rem 0 1rem; display: flex; align-items: center; gap: 0.625rem;">
@@ -2677,7 +2804,7 @@
                         <h4 style="margin: 1.5rem 0 0.75rem; color: var(--text-muted); font-size: 0.8125rem; text-transform: uppercase; letter-spacing: 0.05em;">Word Bank</h4>
                         <div class="word-bank" id="picWordBank">
                             ${allWords.map((w, wi) => `
-                                <span class="word-chip ${w.isDecoy ? 'decoy' : ''}" id="picWord-${wi}" data-wordidx="${wi}" data-catidx="${w.catIdx}" data-isdecoy="${w.isDecoy}"
+                                <span class="word-chip" id="picWord-${wi}" data-wordidx="${wi}" data-catidx="${w.catIdx}" data-isdecoy="${w.isDecoy}"
                                     onclick="selectPicWord(${wi}, ${w.catIdx}, ${w.isDecoy})">${w.word}</span>
                             `).join('')}
                         </div>
@@ -3606,3 +3733,5 @@
     </script>
 </body>
 </html>
+
+
