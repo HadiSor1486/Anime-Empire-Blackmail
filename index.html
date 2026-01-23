@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arabic by Rolla</title>
-    <meta name="description" content="Engaging Arabic language quizzes">
+    <meta name="description" content="Engaging Arabic language quizzes.">
     
     <!-- LZ-String for URL compression -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
@@ -2537,28 +2537,31 @@
                 alert('Please enter a word first');
                 return;
             }
-            // Directly use speechSynthesis to ensure it works
+            // Use the same settings as playListeningWord for consistent voice
             if ('speechSynthesis' in window) {
-                speechSynthesis.cancel();
+                window.speechSynthesis.cancel();
+                
                 const utterance = new SpeechSynthesisUtterance(word);
                 utterance.lang = 'ar-SA';
                 utterance.rate = 0.8;
+                utterance.pitch = 1;
+                utterance.volume = 1;
                 
                 // Get voices and try to find Arabic
-                const voices = speechSynthesis.getVoices();
+                const voices = window.speechSynthesis.getVoices();
                 const arabicVoice = voices.find(v => v.lang.startsWith('ar'));
                 if (arabicVoice) utterance.voice = arabicVoice;
                 
                 // If voices not loaded yet, wait for them
                 if (voices.length === 0) {
-                    speechSynthesis.onvoiceschanged = function() {
-                        const loadedVoices = speechSynthesis.getVoices();
+                    window.speechSynthesis.onvoiceschanged = function() {
+                        const loadedVoices = window.speechSynthesis.getVoices();
                         const arabic = loadedVoices.find(v => v.lang.startsWith('ar'));
                         if (arabic) utterance.voice = arabic;
-                        speechSynthesis.speak(utterance);
+                        window.speechSynthesis.speak(utterance);
                     };
                 } else {
-                    speechSynthesis.speak(utterance);
+                    window.speechSynthesis.speak(utterance);
                 }
             } else {
                 alert('Text-to-speech is not supported in your browser');
@@ -4418,3 +4421,5 @@
     </script>
 </body>
 </html>
+
+
