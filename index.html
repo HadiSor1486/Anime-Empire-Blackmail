@@ -1521,6 +1521,12 @@
             25% { transform: translateX(-8px); }
             75% { transform: translateX(8px); }
         }
+        
+        /* Pulse animation for loading */
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
     </style>
 </head>
 <body>
@@ -2460,7 +2466,7 @@
             return questions;
         }
         
-        function generateExamLink() {
+        async function generateExamLink() {
             const questions = collectExamQuestions();
             
             // Validate
@@ -2494,47 +2500,94 @@
             // Generate URL with SUPER COMPRESSED data using minification
             const compressedData = compressExamData(fullExam);
             const baseUrl = window.location.href.split('?')[0];
-            const examLink = `${baseUrl}?e=${compressedData}`;
+            const longExamLink = `${baseUrl}?e=${compressedData}`;
             
             // Reset temp data
             examTempImages = {};
             examTempWords = {};
             examTempDecoyWords = [];
             
+            // Show loading state while shortening
+            const body = document.getElementById('modalBody');
+            body.innerHTML = `
+                <div class="success-animation">
+                    <div class="checkmark" style="background: var(--primary); animation: pulse 1s infinite;">⏳</div>
+                    <h3>Creating Your Short Link...</h3>
+                    <p style="color: var(--text-secondary);">Please wait while we generate a compact URL</p>
+                </div>
+            `;
+            
+            // Try to shorten the URL
+            let examLink = longExamLink;
+            let wasShortened = false;
+            
+            try {
+                const shortUrl = await shortenUrl(longExamLink);
+                if (shortUrl && shortUrl.length < longExamLink.length) {
+                    examLink = shortUrl;
+                    wasShortened = true;
+                }
+            } catch (e) {
+                console.log('URL shortening failed, using compressed link:', e);
+            }
+            
             // Show link with size comparison
             const originalSize = JSON.stringify(fullExam).length;
-            const compressedSize = compressedData.length;
-            const savings = Math.round((1 - compressedSize / originalSize) * 100);
+            const finalSize = examLink.length;
+            const savings = Math.round((1 - finalSize / originalSize) * 100);
             
-            const totalLinkLength = examLink.length;
-            const body = document.getElementById('modalBody');
             body.innerHTML = `
                 <div class="success-animation">
                     <div class="checkmark">✓</div>
                     <h3>Exam Created Successfully!</h3>
-                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">Share this compact link with your students</p>
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                        ${wasShortened ? '🎉 Short link generated! Easy to share!' : 'Share this compact link with your students'}
+                    </p>
                     <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 0.5rem;">
-                        <span style="background: rgba(16, 185, 129, 0.15); color: var(--success); padding: 0.375rem 0.75rem; border-radius: var(--radius-full); font-size: 0.8125rem; font-weight: 600;">
-                            ${savings}% smaller
-                        </span>
+                        ${wasShortened ? `
+                            <span style="background: rgba(16, 185, 129, 0.15); color: var(--success); padding: 0.375rem 0.75rem; border-radius: var(--radius-full); font-size: 0.8125rem; font-weight: 600;">
+                                ✨ Short URL!
+                            </span>
+                        ` : ''}
                         <span style="background: rgba(6, 182, 212, 0.15); color: var(--accent); padding: 0.375rem 0.75rem; border-radius: var(--radius-full); font-size: 0.8125rem; font-weight: 600;">
-                            ${totalLinkLength} chars total
+                            ${finalSize} chars
+                        </span>
+                        <span style="background: rgba(99, 102, 241, 0.15); color: var(--primary); padding: 0.375rem 0.75rem; border-radius: var(--radius-full); font-size: 0.8125rem; font-weight: 600;">
+                            ${savings}% smaller than raw data
                         </span>
                     </div>
                 </div>
                 
-                <div class="link-display">
-                    <input type="text" id="examLinkInput" value="${examLink}" readonly onclick="this.select()">
+                <div class="link-display" style="${wasShortened ? 'border-color: var(--success);' : ''}">
+                    <input type="text" id="examLinkInput" value="${examLink}" readonly onclick="this.select()" 
+                        style="${wasShortened ? 'color: var(--success); font-size: 1rem; font-weight: 600;' : ''}">
                 </div>
                 
-                <div style="display: flex; gap: 1rem;">
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
                     <button class="btn btn-primary" onclick="copyExamLink()" style="flex: 1;">
                         📋 Copy Link
                     </button>
+                    ${!wasShortened ? `
+                        <button class="btn btn-secondary" onclick="retryShorten('${longExamLink.replace(/'/g, "\\'")}')">
+                            🔄 Try Shorten Again
+                        </button>
+                    ` : ''}
                     <button class="btn btn-secondary" onclick="closeModal()">
                         Done
                     </button>
                 </div>
+                
+                ${!wasShortened ? `
+                    <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(245, 158, 11, 0.1); border: 1px solid var(--warning); border-radius: var(--radius-md);">
+                        <p style="color: var(--warning); font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem;">
+                            💡 Tip: Use a URL shortener for easier sharing
+                        </p>
+                        <p style="color: var(--text-secondary); font-size: 0.8125rem;">
+                            Copy the link above and paste it into <a href="https://tinyurl.com" target="_blank" style="color: var(--accent);">TinyURL.com</a> 
+                            or <a href="https://bit.ly" target="_blank" style="color: var(--accent);">Bit.ly</a> to get a shorter link.
+                        </p>
+                    </div>
+                ` : ''}
                 
                 <p style="margin-top: 1.5rem; color: var(--text-muted); font-size: 0.8125rem; text-align: center;">
                     This link contains all exam data and works on any device/browser.<br>
@@ -2543,6 +2596,110 @@
             `;
             
             createConfetti();
+        }
+        
+        // URL Shortening using multiple services
+        async function shortenUrl(longUrl) {
+            // Try TinyURL first (free, no API key needed)
+            try {
+                const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`);
+                if (response.ok) {
+                    const shortUrl = await response.text();
+                    if (shortUrl && shortUrl.startsWith('http')) {
+                        return shortUrl;
+                    }
+                }
+            } catch (e) {
+                console.log('TinyURL failed:', e);
+            }
+            
+            // Try is.gd as fallback
+            try {
+                const response = await fetch(`https://is.gd/create.php?format=simple&url=${encodeURIComponent(longUrl)}`);
+                if (response.ok) {
+                    const shortUrl = await response.text();
+                    if (shortUrl && shortUrl.startsWith('http')) {
+                        return shortUrl;
+                    }
+                }
+            } catch (e) {
+                console.log('is.gd failed:', e);
+            }
+            
+            // Return null if all services fail
+            return null;
+        }
+        
+        async function retryShorten(longUrl) {
+            const body = document.getElementById('modalBody');
+            const currentLink = document.getElementById('examLinkInput')?.value || longUrl;
+            
+            body.innerHTML = `
+                <div class="success-animation">
+                    <div class="checkmark" style="background: var(--primary); animation: pulse 1s infinite;">⏳</div>
+                    <h3>Trying to shorten URL...</h3>
+                    <p style="color: var(--text-secondary);">Please wait...</p>
+                </div>
+            `;
+            
+            try {
+                const shortUrl = await shortenUrl(longUrl);
+                if (shortUrl && shortUrl.length < longUrl.length) {
+                    // Success! Show the short URL
+                    const savings = Math.round((1 - shortUrl.length / longUrl.length) * 100);
+                    body.innerHTML = `
+                        <div class="success-animation">
+                            <div class="checkmark">✓</div>
+                            <h3>Short Link Created!</h3>
+                            <p style="color: var(--text-secondary);">🎉 ${savings}% shorter - easy to share!</p>
+                        </div>
+                        
+                        <div class="link-display" style="border-color: var(--success);">
+                            <input type="text" id="examLinkInput" value="${shortUrl}" readonly onclick="this.select()" 
+                                style="color: var(--success); font-size: 1rem; font-weight: 600;">
+                        </div>
+                        
+                        <div style="display: flex; gap: 1rem;">
+                            <button class="btn btn-primary" onclick="copyExamLink()" style="flex: 1;">
+                                📋 Copy Short Link
+                            </button>
+                            <button class="btn btn-secondary" onclick="closeModal()">
+                                Done
+                            </button>
+                        </div>
+                    `;
+                    createConfetti();
+                } else {
+                    throw new Error('Could not shorten');
+                }
+            } catch (e) {
+                body.innerHTML = `
+                    <div class="success-animation">
+                        <div class="checkmark" style="background: var(--warning);">⚠️</div>
+                        <h3>URL Shortening Unavailable</h3>
+                        <p style="color: var(--text-secondary);">Use the original link or try an external shortener</p>
+                    </div>
+                    
+                    <div class="link-display">
+                        <input type="text" id="examLinkInput" value="${longUrl}" readonly onclick="this.select()">
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem;">
+                        <button class="btn btn-primary" onclick="copyExamLink()" style="flex: 1;">
+                            📋 Copy Link
+                        </button>
+                        <button class="btn btn-secondary" onclick="closeModal()">
+                            Done
+                        </button>
+                    </div>
+                    
+                    <div style="margin-top: 1rem; padding: 1rem; background: rgba(6, 182, 212, 0.1); border: 1px solid var(--accent); border-radius: var(--radius-md);">
+                        <p style="color: var(--accent); font-size: 0.875rem;">
+                            💡 Copy the link and paste it into <a href="https://tinyurl.com" target="_blank" style="color: var(--primary); font-weight: 600;">TinyURL.com</a> to shorten it manually.
+                        </p>
+                    </div>
+                `;
+            }
         }
         
         function copyExamLink() {
@@ -2786,8 +2943,9 @@
                     <p style="color: var(--accent); text-align: center; margin-bottom: 1rem; font-size: 0.9rem;" id="picMatchInstruction">
                         Click a word, then click the category it belongs to
                     </p>
-                    ${decoyWords.length > 0 ? `<p style="color: var(--warning); text-align: center; font-size: 0.8125rem; margin-bottom: 1rem;">
-                        ⚠️ Some words may not belong to any category - leave them in the word bank!
+                    ${decoyWords.length > 0 ? `<p style="color: var(--warning); text-align: center; font-size: 0.875rem; margin-bottom: 1rem; padding: 0.75rem; background: rgba(245, 158, 11, 0.1); border-radius: var(--radius-md); border: 1px solid rgba(245, 158, 11, 0.3);">
+                        ⚠️ <strong>Warning:</strong> Some words don't belong to any category!<br>
+                        <span style="font-size: 0.8125rem;">Leave fake words in the word bank. Placing them in a category will be marked wrong!</span>
                     </p>` : ''}
                     <div class="quiz-question-card">
                         <div class="match-container" style="flex-wrap: wrap; justify-content: center;">
@@ -3202,9 +3360,9 @@
                 });
             }
             
-            // Grade Picture Match (excluding decoys)
+            // Grade Picture Match (including penalty for placing decoys)
             if (exam.questions.relatedWords) {
-                // Check placed words (excluding decoys for scoring)
+                // Check placed non-decoy words
                 for (const [wordIdx, placed] of Object.entries(placedPicWords)) {
                     if (!placed.isDecoy) {
                         total++;
@@ -3220,6 +3378,19 @@
                             studentAnswer: placedCatName,
                             correctAnswer: correctCatName,
                             isCorrect
+                        });
+                    } else {
+                        // DECOY WORD WAS PLACED IN A CATEGORY - THIS IS WRONG!
+                        // Decoy words should be left in the word bank
+                        total++;
+                        const placedCatName = exam.questions.relatedWords[placed.catIdx]?.name || '(unknown)';
+                        
+                        details.push({
+                            type: 'Picture Match (Decoy)',
+                            question: placed.word,
+                            studentAnswer: `Placed in "${placedCatName}"`,
+                            correctAnswer: 'Should be left in word bank (decoy word)',
+                            isCorrect: false
                         });
                     }
                 }
@@ -3239,6 +3410,24 @@
                             });
                         }
                     });
+                });
+                
+                // Reward for correctly leaving decoys in word bank
+                const decoyWords = exam.questions.decoyWords || [];
+                decoyWords.forEach(decoyWord => {
+                    const wasPlaced = Object.values(placedPicWords).some(p => p.word === decoyWord && p.isDecoy);
+                    if (!wasPlaced) {
+                        // Student correctly left the decoy in the word bank!
+                        total++;
+                        correct++;
+                        details.push({
+                            type: 'Picture Match (Decoy)',
+                            question: decoyWord,
+                            studentAnswer: 'Left in word bank',
+                            correctAnswer: 'Left in word bank (decoy word)',
+                            isCorrect: true
+                        });
+                    }
                 });
             }
             
@@ -3733,5 +3922,3 @@
     </script>
 </body>
 </html>
-
-
