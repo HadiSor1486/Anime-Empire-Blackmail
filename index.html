@@ -1211,8 +1211,12 @@
             transition: opacity 0.2s;
         }
         
-        .word-chip.placed-word:hover::after {
+.word-chip.placed-word:hover::after {
             opacity: 1;
+        }
+        
+        .word-chip.placed {
+            display: none;
         }
         
         .word-bank {
@@ -3531,12 +3535,156 @@
             updateProgress();
         }
         
+        // ==================== SENTENCE ARRANGE QUIZ ====================
+        function selectSentenceWord(questionIdx, wordIdx, word) {
+            const wordEl = document.getElementById(`saWord-${questionIdx}-${wordIdx}`);
+            const dropZone = document.getElementById(`saDropZone-${questionIdx}`);
+            const placeholder = document.getElementById(`saPlaceholder-${questionIdx}`);
+            const card = document.getElementById(`studentQ-sentenceArrange-${questionIdx}`);
+            
+            // If word is already placed, return it to word bank
+            if (wordEl.classList.contains('placed')) {
+                wordEl.classList.remove('placed');
+                wordEl.style.display = 'inline-block';
+                
+                // Remove from drop zone
+                const placedWord = dropZone.querySelector(`[data-source-id="saWord-${questionIdx}-${wordIdx}"]`);
+                if (placedWord) placedWord.remove();
+                
+                // Update answer
+                rebuildSentenceAnswer(questionIdx);
+                return;
+            }
+            
+            // Hide placeholder
+            if (placeholder) placeholder.style.display = 'none';
+            
+            // Create placed word in drop zone
+            const placedWord = document.createElement('span');
+            placedWord.className = 'word-chip placed-word';
+            placedWord.textContent = word;
+            placedWord.setAttribute('data-source-id', `saWord-${questionIdx}-${wordIdx}`);
+            placedWord.setAttribute('data-word', word);
+            placedWord.onclick = function() {
+                // Click to remove
+                this.remove();
+                wordEl.classList.remove('placed');
+                wordEl.style.display = 'inline-block';
+                rebuildSentenceAnswer(questionIdx);
+            };
+            dropZone.appendChild(placedWord);
+            
+            // Hide original word
+            wordEl.classList.add('placed');
+            wordEl.style.display = 'none';
+            
+            // Update answer
+            rebuildSentenceAnswer(questionIdx);
+            
+            // Mark card as answered if all words placed
+            const wordBank = document.getElementById(`saWordBank-${questionIdx}`);
+            const remainingWords = wordBank.querySelectorAll('.word-chip:not(.placed)');
+            if (remainingWords.length === 0) {
+                card.classList.add('answered');
+            } else {
+                card.classList.remove('answered');
+            }
+            
+            updateProgress();
+        }
+        
+        function rebuildSentenceAnswer(questionIdx) {
+            const dropZone = document.getElementById(`saDropZone-${questionIdx}`);
+            const placeholder = document.getElementById(`saPlaceholder-${questionIdx}`);
+            const placedWords = dropZone.querySelectorAll('.placed-word');
+            
+            if (placedWords.length === 0) {
+                if (placeholder) placeholder.style.display = 'inline';
+                delete studentAnswers.sentenceArrange[questionIdx];
+            } else {
+                const sentence = Array.from(placedWords).map(w => w.getAttribute('data-word')).join(' ');
+                studentAnswers.sentenceArrange[questionIdx] = sentence;
+            }
+            
+            updateProgress();
+        }
+        
+        // ==================== LISTENING QUIZ ====================
+        // Pre-load voices for speech synthesis
+        let speechVoices = [];
+        if ('speechSynthesis' in window) {
+            // Load voices
+            speechVoices = window.speechSynthesis.getVoices();
+            // Some browsers load voices asynchronously
+            window.speechSynthesis.onvoiceschanged = function() {
+                speechVoices = window.speechSynthesis.getVoices();
+            };
+        }
+        
+        function playListeningWord(questionIdx, word) {
+            // Use Web Speech API to speak the word
+            if ('speechSynthesis' in window) {
+                // Cancel any ongoing speech
+                window.speechSynthesis.cancel();
+                
+                const utterance = new SpeechSynthesisUtterance(word);
+                utterance.lang = 'ar-SA'; // Arabic (Saudi Arabia)
+                utterance.rate = 0.8; // Slightly slower for clarity
+                utterance.pitch = 1;
+                utterance.volume = 1;
+                
+                // Try to find an Arabic voice
+                const voices = speechVoices.length > 0 ? speechVoices : window.speechSynthesis.getVoices();
+                const arabicVoice = voices.find(v => v.lang.startsWith('ar'));
+                if (arabicVoice) {
+                    utterance.voice = arabicVoice;
+                }
+                
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert('Sorry, your browser does not support text-to-speech. Please use a modern browser like Chrome or Edge.');
+            }
+        }
+        
+        function selectListeningAnswer(questionIdx, selectedWord, correctWord) {
+            const card = document.getElementById(`studentQ-listeningQuiz-${questionIdx}`);
+            const optionsContainer = document.getElementById(`lqOpts-${questionIdx}`);
+            
+            // Remove previous selection
+            optionsContainer.querySelectorAll('.option-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            // Find and mark selected button
+            optionsContainer.querySelectorAll('.option-btn').forEach(btn => {
+                if (btn.textContent === selectedWord) {
+                    btn.classList.add('selected');
+                }
+            });
+            
+            // Store answer
+            studentAnswers.listeningQuiz[questionIdx] = {
+                selected: selectedWord,
+                correct: correctWord
+            };
+            
+            // Play the selected word
+            playListeningWord(questionIdx, selectedWord);
+            
+            // Mark as answered
+            card.classList.add('answered');
+            
+            updateProgress();
+        }
+        
         function updateProgress() {
             let answered = 0;
             
             answered += Object.keys(studentAnswers.fillBlank).length;
             answered += Object.keys(studentAnswers.trueFalse).length;
             answered += Object.keys(studentAnswers.matchWords).length;
+            answered += Object.keys(studentAnswers.sentenceArrange).length;
+            answered += Object.keys(studentAnswers.listeningQuiz).length;
             
             // Only count non-decoy placed words
             for (const [wordIdx, placed] of Object.entries(placedPicWords)) {
@@ -3690,6 +3838,41 @@
                             isCorrect: true
                         });
                     }
+                });
+            }
+            
+            // Grade Sentence Arrange
+            if (exam.questions.sentenceArrange && exam.questions.sentenceArrange.length > 0) {
+                exam.questions.sentenceArrange.forEach((q, i) => {
+                    total++;
+                    const studentSentence = studentAnswers.sentenceArrange[i] || '';
+                    const correctSentence = q.sentence.trim();
+                    const isCorrect = studentSentence.trim() === correctSentence;
+                    if (isCorrect) correct++;
+                    details.push({
+                        type: 'Arrange Sentence',
+                        question: 'Arrange: ' + correctSentence.split(/\s+/).slice(0, 3).join(' ') + '...',
+                        studentAnswer: studentSentence || '(no answer)',
+                        correctAnswer: correctSentence,
+                        isCorrect
+                    });
+                });
+            }
+            
+            // Grade Listening Quiz
+            if (exam.questions.listeningQuiz && exam.questions.listeningQuiz.length > 0) {
+                exam.questions.listeningQuiz.forEach((q, i) => {
+                    total++;
+                    const answer = studentAnswers.listeningQuiz[i];
+                    const isCorrect = answer && answer.selected === q.correctWord;
+                    if (isCorrect) correct++;
+                    details.push({
+                        type: 'Listening',
+                        question: '🔊 (audio word)',
+                        studentAnswer: answer?.selected || '(no answer)',
+                        correctAnswer: q.correctWord,
+                        isCorrect
+                    });
                 });
             }
             
@@ -4184,5 +4367,3 @@
     </script>
 </body>
 </html>
-
-
