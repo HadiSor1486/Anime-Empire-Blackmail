@@ -3,9 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arabic by Rolla</title>
+    <title>Arabic by Rolla - Interactive Quiz Platform</title>
+    <meta name="description" content="Create engaging Arabic language quizzes and exams for your students with instant feedback and Telegram notifications.">
+    
+    <!-- LZ-String for URL compression -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Fredoka+One&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800&display=swap');
         
         * {
             margin: 0;
@@ -14,57 +19,89 @@
         }
         
         :root {
-            --primary: #8b5cf6;
-            --primary-dark: #7c3aed;
-            --secondary: #f472b6;
-            --accent: #22d3ee;
-            --accent2: #fbbf24;
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary: #ec4899;
+            --accent: #06b6d4;
+            --accent2: #f59e0b;
             --success: #10b981;
             --error: #ef4444;
             --warning: #f59e0b;
-            --bg-dark: #0f172a;
-            --bg-card: #1e293b;
-            --bg-card-hover: #334155;
-            --text: #f1f5f9;
-            --text-muted: #94a3b8;
-            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            --gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #111118;
+            --bg-card: rgba(17, 17, 24, 0.8);
+            --bg-card-hover: rgba(30, 30, 45, 0.9);
+            --bg-elevated: rgba(25, 25, 35, 0.95);
+            
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            
+            --border: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(255, 255, 255, 0.15);
+            
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            
+            --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+            --gradient-secondary: linear-gradient(135deg, #ec4899 0%, #f472b6 100%);
+            --gradient-accent: linear-gradient(135deg, #06b6d4 0%, #22d3ee 100%);
+            --gradient-success: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5);
+            --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.15);
+            
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --radius-full: 9999px;
         }
         
         /* Light Theme */
         body.light-theme {
-            --primary: #ec4899;
-            --primary-dark: #db2777;
-            --secondary: #f97316;
-            --accent: #06b6d4;
-            --accent2: #eab308;
-            --success: #22c55e;
-            --error: #ef4444;
-            --warning: #f59e0b;
-            --bg-dark: #fdf2f8;
-            --bg-card: #ffffff;
-            --bg-card-hover: #fce7f3;
-            --text: #1f2937;
-            --text-muted: #6b7280;
-            --gradient-1: linear-gradient(135deg, #f472b6 0%, #ec4899 100%);
-            --gradient-2: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
-            --gradient-3: linear-gradient(135deg, #67e8f9 0%, #06b6d4 100%);
-            --gradient-4: linear-gradient(135deg, #86efac 0%, #22c55e 100%);
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            
+            --bg-primary: #fafafa;
+            --bg-secondary: #ffffff;
+            --bg-card: rgba(255, 255, 255, 0.9);
+            --bg-card-hover: rgba(248, 250, 252, 1);
+            --bg-elevated: rgba(255, 255, 255, 0.98);
+            
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            
+            --border: rgba(0, 0, 0, 0.08);
+            --border-hover: rgba(0, 0, 0, 0.12);
+            
+            --glass: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(0, 0, 0, 0.06);
+            
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.12);
+            --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.16);
+            --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.1);
         }
         
         body {
-            font-family: 'Poppins', sans-serif;
-            background: var(--bg-dark);
-            color: var(--text);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             min-height: 100vh;
             overflow-x: hidden;
-            transition: background 0.3s ease, color 0.3s ease;
+            transition: background 0.4s ease, color 0.4s ease;
+            line-height: 1.6;
         }
         
-        /* Animated Background */
-        .bg-animation {
+        /* Ambient Background */
+        .ambient-bg {
             position: fixed;
             top: 0;
             left: 0;
@@ -72,228 +109,190 @@
             height: 100%;
             z-index: -1;
             overflow: hidden;
+            pointer-events: none;
         }
         
-        .bg-animation::before {
+        .ambient-bg::before {
             content: '';
             position: absolute;
-            width: 200%;
-            height: 200%;
-            top: -50%;
-            left: -50%;
-            background: radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 20%, rgba(244, 114, 182, 0.15) 0%, transparent 50%),
-                        radial-gradient(circle at 40% 40%, rgba(34, 211, 238, 0.1) 0%, transparent 40%),
-                        radial-gradient(circle at 60% 60%, rgba(251, 191, 36, 0.08) 0%, transparent 35%);
-            animation: bgMove 20s ease-in-out infinite;
+            width: 150%;
+            height: 150%;
+            top: -25%;
+            left: -25%;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(6, 182, 212, 0.08) 0%, transparent 40%);
+            animation: ambientMove 30s ease-in-out infinite;
         }
         
-        body.light-theme .bg-animation::before {
-            background: radial-gradient(circle at 20% 80%, rgba(236, 72, 153, 0.2) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 20%, rgba(249, 115, 22, 0.2) 0%, transparent 50%),
-                        radial-gradient(circle at 40% 40%, rgba(6, 182, 212, 0.15) 0%, transparent 40%),
-                        radial-gradient(circle at 60% 60%, rgba(234, 179, 8, 0.1) 0%, transparent 35%);
+        body.light-theme .ambient-bg::before {
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(99, 102, 241, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(236, 72, 153, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(6, 182, 212, 0.06) 0%, transparent 40%);
         }
         
-        @keyframes bgMove {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            25% { transform: translate(2%, 2%) rotate(1deg); }
-            50% { transform: translate(0, 4%) rotate(0deg); }
-            75% { transform: translate(-2%, 2%) rotate(-1deg); }
+        @keyframes ambientMove {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(2%, 2%) scale(1.02); }
+            66% { transform: translate(-2%, 1%) scale(0.98); }
         }
         
-        /* Floating Particles */
-        .particles {
+        /* Noise Texture Overlay */
+        .noise-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none;
             z-index: -1;
-        }
-        
-        .particle {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background: var(--primary);
-            border-radius: 50%;
-            opacity: 0.3;
-            animation: float 15s infinite;
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-            10% { opacity: 0.3; }
-            90% { opacity: 0.3; }
-            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+            opacity: 0.03;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
         }
         
         /* Header */
         .header {
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(30, 41, 59, 0.8) 100%);
+            background: var(--glass);
             backdrop-filter: blur(20px);
-            padding: 1.5rem 2rem;
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             position: sticky;
             top: 0;
             z-index: 100;
         }
         
-        body.light-theme .header {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(253, 242, 248, 0.9) 100%);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-        }
-        
         .logo {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 0.875rem;
         }
         
         .logo-icon {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border-radius: 15px;
+            width: 44px;
+            height: 44px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-md);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+            font-size: 1.25rem;
+            box-shadow: var(--shadow-md), 0 0 20px rgba(99, 102, 241, 0.3);
         }
         
         .logo h1 {
-            font-family: 'Fredoka One', cursive;
-            font-size: 1.8rem;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 50%, var(--accent) 100%);
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            letter-spacing: -0.02em;
         }
         
         .header-actions {
             display: flex;
-            gap: 1rem;
+            gap: 0.75rem;
             flex-wrap: wrap;
             align-items: center;
         }
         
-        /* Theme Toggle Button */
-        .theme-toggle {
-            width: 45px;
-            height: 45px;
-            border-radius: 12px;
-            background: var(--bg-card);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            color: var(--text);
+        /* Buttons */
+        .btn {
+            padding: 0.625rem 1.25rem;
+            border: none;
+            border-radius: var(--radius-md);
             cursor: pointer;
-            font-size: 1.3rem;
-            display: flex;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s ease;
-        }
-        
-        .theme-toggle:hover {
-            transform: translateY(-2px);
-            background: var(--primary);
-            border-color: var(--primary);
-        }
-        
-        body.light-theme .theme-toggle {
-            border-color: rgba(0, 0, 0, 0.1);
-        }
-        
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            font-family: 'Poppins', sans-serif;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
             gap: 0.5rem;
+            text-decoration: none;
         }
         
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            background: var(--gradient-primary);
             color: white;
-            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+            box-shadow: var(--shadow-sm), 0 0 20px rgba(99, 102, 241, 0.25);
         }
         
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 25px rgba(139, 92, 246, 0.5);
+            box-shadow: var(--shadow-md), 0 0 30px rgba(99, 102, 241, 0.35);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-hover);
+            transform: translateY(-1px);
         }
         
         .btn-danger {
-            background: linear-gradient(135deg, var(--error) 0%, #dc2626 100%);
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             color: white;
-            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.25);
         }
         
         .btn-danger:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 25px rgba(239, 68, 68, 0.5);
-        }
-        
-        .btn-secondary {
-            background: var(--bg-card-hover);
-            color: var(--text);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.35);
         }
         
         .btn-success {
-            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            background: var(--gradient-success);
             color: white;
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.25);
         }
         
         .btn-success:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 25px rgba(16, 185, 129, 0.5);
-        }
-        
-        .btn-accent {
-            background: linear-gradient(135deg, var(--accent2) 0%, #f59e0b 100%);
-            color: #1e293b;
-            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
-        }
-        
-        .btn-accent:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 25px rgba(251, 191, 36, 0.5);
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.35);
         }
         
         .btn-gradient {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background: var(--gradient-primary);
             color: white;
-            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
             font-size: 1rem;
             padding: 1rem 2rem;
+            box-shadow: var(--shadow-md), 0 0 30px rgba(99, 102, 241, 0.3);
         }
         
         .btn-gradient:hover {
             transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.5);
+            box-shadow: var(--shadow-lg), 0 0 40px rgba(99, 102, 241, 0.4);
+        }
+        
+        .btn-icon {
+            width: 42px;
+            height: 42px;
+            padding: 0;
+            border-radius: var(--radius-md);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            font-size: 1.25rem;
+        }
+        
+        .btn-icon:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--primary);
+            color: var(--primary);
         }
         
         /* Main Container */
@@ -303,21 +302,45 @@
             padding: 2rem;
         }
         
-        /* Quiz Type Cards */
-        .quiz-types-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
+        /* Section Headers */
+        .section-header {
+            margin-bottom: 2rem;
         }
         
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .section-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.125rem;
+        }
+        
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        /* Quiz Cards */
         .quiz-card {
             background: var(--bg-card);
-            border-radius: 24px;
-            padding: 2rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 1.75rem;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 2px solid transparent;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
         }
@@ -325,19 +348,16 @@
         .quiz-card::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+            inset: 0;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, transparent 60%);
             opacity: 0;
             transition: opacity 0.3s ease;
         }
         
         .quiz-card:hover {
-            transform: translateY(-8px) scale(1.02);
+            transform: translateY(-4px);
             border-color: var(--primary);
-            box-shadow: 0 20px 40px rgba(139, 92, 246, 0.2);
+            box-shadow: var(--shadow-lg), var(--shadow-glow);
         }
         
         .quiz-card:hover::before {
@@ -345,91 +365,170 @@
         }
         
         .quiz-card-icon {
-            width: 80px;
-            height: 80px;
-            border-radius: 20px;
+            width: 64px;
+            height: 64px;
+            border-radius: var(--radius-lg);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.5rem;
-            margin-bottom: 1.5rem;
+            font-size: 1.75rem;
+            margin-bottom: 1.25rem;
             position: relative;
         }
         
-        .quiz-card-icon.fill-blank {
-            background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
-        }
-        
-        .quiz-card-icon.related-words {
-            background: linear-gradient(135deg, #f472b6 0%, #ec4899 100%);
-        }
-        
-        .quiz-card-icon.match-words {
-            background: linear-gradient(135deg, #22d3ee 0%, #06b6d4 100%);
-        }
-        
-        .quiz-card-icon.true-false {
-            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
-        }
+        .quiz-card-icon.fill-blank { background: var(--gradient-primary); }
+        .quiz-card-icon.related-words { background: var(--gradient-secondary); }
+        .quiz-card-icon.match-words { background: var(--gradient-accent); }
+        .quiz-card-icon.true-false { background: var(--gradient-success); }
         
         .quiz-card h3 {
-            font-size: 1.4rem;
+            font-size: 1.25rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
+            letter-spacing: -0.01em;
         }
         
         .quiz-card p {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            line-height: 1.6;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
         }
         
         .quiz-badge {
             position: absolute;
             top: 1rem;
             right: 1rem;
-            padding: 0.4rem 0.8rem;
-            border-radius: 20px;
+            padding: 0.375rem 0.75rem;
+            border-radius: var(--radius-full);
             font-size: 0.75rem;
             font-weight: 600;
         }
         
         .badge-ready {
-            background: var(--success);
-            color: white;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
         }
         
         .badge-empty {
             background: var(--bg-card-hover);
             color: var(--text-muted);
+            border: 1px solid var(--border);
         }
         
         /* Create Exam Card */
         .create-exam-card {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(240, 147, 251, 0.2) 100%);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
             border: 2px dashed var(--primary);
-            border-radius: 24px;
+            border-radius: var(--radius-xl);
             padding: 2.5rem;
             text-align: center;
             cursor: pointer;
-            transition: all 0.4s ease;
+            transition: all 0.3s ease;
             grid-column: 1 / -1;
             margin-bottom: 1rem;
         }
         
         .create-exam-card:hover {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(240, 147, 251, 0.3) 100%);
-            transform: scale(1.02);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%);
+            transform: scale(1.01);
             border-style: solid;
+            box-shadow: var(--shadow-glow);
+        }
+        
+        .create-exam-card .icon {
+            width: 72px;
+            height: 72px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 1.25rem;
+            box-shadow: var(--shadow-md), 0 0 30px rgba(99, 102, 241, 0.3);
         }
         
         .create-exam-card h3 {
             font-size: 1.5rem;
+            font-weight: 700;
             margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background: var(--gradient-primary);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+        }
+        
+        .create-exam-card p {
+            color: var(--text-secondary);
+        }
+        
+        /* Settings Card */
+        .settings-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .settings-card h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            margin-bottom: 1rem;
+            font-size: 1.125rem;
+        }
+        
+        .settings-card h3 span {
+            font-size: 1.25rem;
+        }
+        
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9375rem;
+            transition: all 0.2s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .form-hint {
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
         }
         
         /* Modal */
@@ -440,17 +539,17 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(8px);
             display: none;
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            padding: 2rem;
+            padding: 1.5rem;
         }
         
         .modal-overlay.active {
             display: flex;
-            animation: fadeIn 0.3s ease;
+            animation: fadeIn 0.2s ease;
         }
         
         @keyframes fadeIn {
@@ -459,13 +558,15 @@
         }
         
         .modal {
-            background: var(--bg-card);
-            border-radius: 24px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
             max-width: 900px;
             width: 100%;
             max-height: 90vh;
             overflow-y: auto;
-            animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-lg);
         }
         
         .modal.wide {
@@ -473,142 +574,69 @@
         }
         
         @keyframes slideUp {
-            from { transform: translateY(50px); opacity: 0; }
+            from { transform: translateY(20px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
         
         .modal-header {
-            padding: 1.5rem 2rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
-            background: var(--bg-card);
+            background: var(--bg-elevated);
             z-index: 10;
         }
         
         .modal-header h2 {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
+            font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 0.625rem;
         }
         
         .close-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            background: var(--bg-card-hover);
-            border: none;
-            color: var(--text);
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-md);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
             cursor: pointer;
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
         
         .close-btn:hover {
             background: var(--error);
+            border-color: var(--error);
+            color: white;
             transform: rotate(90deg);
         }
         
         .modal-body {
-            padding: 2rem;
-        }
-        
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 3rem 2rem;
-        }
-        
-        .empty-state-icon {
-            width: 120px;
-            height: 120px;
-            background: var(--bg-card-hover);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3rem;
-            margin: 0 auto 1.5rem;
-            animation: bounce 2s infinite;
-        }
-        
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        
-        .empty-state h3 {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .empty-state p {
-            color: var(--text-muted);
-            margin-bottom: 1.5rem;
-        }
-        
-        /* Form Styles */
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: var(--text);
-        }
-        
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 1rem 1.25rem;
-            background: var(--bg-dark);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            color: var(--text);
-            font-family: 'Poppins', sans-serif;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-        
-        .form-group input:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);
-        }
-        
-        .form-group textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-        
-        .form-hint {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-top: 0.5rem;
+            padding: 1.5rem;
         }
         
         /* Question Builder */
         .question-builder {
-            background: var(--bg-dark);
-            border-radius: 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
             padding: 1.5rem;
             margin-bottom: 1rem;
-            border: 2px solid rgba(255, 255, 255, 0.05);
             position: relative;
+            transition: border-color 0.2s ease;
         }
         
         .question-builder:hover {
-            border-color: rgba(255, 255, 255, 0.1);
+            border-color: var(--border-hover);
         }
         
         .question-number {
@@ -616,31 +644,35 @@
             top: -10px;
             left: 1rem;
             background: var(--primary);
+            color: white;
             padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
+            border-radius: var(--radius-full);
+            font-size: 0.8125rem;
             font-weight: 600;
         }
         
         .remove-question {
             position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
+            top: 0.75rem;
+            right: 0.75rem;
+            width: 28px;
+            height: 28px;
+            border-radius: var(--radius-sm);
             background: transparent;
             border: none;
             color: var(--error);
             cursor: pointer;
-            font-size: 1.2rem;
+            font-size: 1.125rem;
             opacity: 0.5;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .remove-question:hover {
             opacity: 1;
-            background: rgba(239, 68, 68, 0.2);
+            background: rgba(239, 68, 68, 0.15);
         }
         
         .options-container {
@@ -662,61 +694,289 @@
         
         .option-input-group input[type="radio"],
         .option-input-group input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             accent-color: var(--success);
         }
         
-        /* Quiz Play View */
-        .quiz-play {
-            padding: 2rem;
+        /* Category Builder */
+        .category-builder {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
         }
         
-        .quiz-question-card {
-            background: var(--bg-dark);
-            border-radius: 20px;
+        .category-builder-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        
+        .category-label {
+            background: var(--gradient-secondary);
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-full);
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: white;
+        }
+        
+        /* Tags Input */
+        .tags-input {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            min-height: 50px;
+            align-items: center;
+        }
+        
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.375rem 0.75rem;
+            background: var(--primary);
+            color: white;
+            border-radius: var(--radius-full);
+            font-size: 0.8125rem;
+            font-weight: 500;
+        }
+        
+        .tag.decoy-tag {
+            background: var(--warning);
+            color: #1e293b;
+        }
+        
+        .tag button {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            padding: 0;
+            font-size: 1rem;
+            line-height: 1;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        
+        .tag button:hover {
+            opacity: 1;
+        }
+        
+        .tags-input input {
+            border: none;
+            background: transparent;
+            color: var(--text-primary);
+            outline: none;
+            font-size: 0.9rem;
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        /* Image Upload */
+        .image-upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-lg);
             padding: 2rem;
-            margin-bottom: 1.5rem;
-            border: 2px solid rgba(255, 255, 255, 0.05);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 1rem;
+        }
+        
+        .image-upload-zone:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+        
+        .image-upload-zone input {
+            display: none;
+        }
+        
+        .image-upload-zone img {
+            max-width: 150px;
+            border-radius: var(--radius-md);
+        }
+        
+        /* Exam Type Selector */
+        .exam-type-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .exam-type-option {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+        
+        .exam-type-option:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+        
+        .exam-type-option.selected {
+            border-color: var(--accent);
+            background: rgba(6, 182, 212, 0.1);
+        }
+        
+        .exam-type-option input {
+            display: none;
+        }
+        
+        .exam-type-option .icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .exam-type-option .name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        /* Link Display */
+        .link-display {
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            margin: 1.5rem 0;
+        }
+        
+        .link-display input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--accent);
+            font-size: 0.9rem;
+            font-family: 'Monaco', 'Consolas', monospace;
+        }
+        
+        .link-display input:focus {
+            outline: none;
+        }
+        
+        /* Student View */
+        .student-header {
+            background: var(--gradient-primary);
+            padding: 2.5rem;
+            border-radius: var(--radius-xl);
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: var(--shadow-lg), 0 0 40px rgba(99, 102, 241, 0.25);
+        }
+        
+        .student-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+        
+        .student-header p {
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .student-name-input {
+            max-width: 400px;
+            margin: 2rem auto;
+            text-align: center;
+        }
+        
+        .student-name-input input {
+            width: 100%;
+            padding: 1.25rem;
+            font-size: 1.125rem;
+            text-align: center;
+            background: var(--bg-card);
+            border: 2px solid var(--primary);
+            border-radius: var(--radius-lg);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .student-name-input input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.15);
+        }
+        
+        /* Progress Bar */
+        .progress-bar {
+            background: var(--bg-card);
+            border-radius: var(--radius-full);
+            height: 8px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-full);
+            transition: width 0.4s ease;
+        }
+        
+        /* Quiz Play View */
+        .quiz-question-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 1.75rem;
+            margin-bottom: 1.25rem;
             transition: all 0.3s ease;
         }
         
         .quiz-question-card.correct {
             border-color: var(--success);
-            background: rgba(16, 185, 129, 0.1);
+            background: rgba(16, 185, 129, 0.08);
         }
         
         .quiz-question-card.incorrect {
             border-color: var(--error);
-            background: rgba(239, 68, 68, 0.1);
+            background: rgba(239, 68, 68, 0.08);
         }
         
         .quiz-question-card.answered {
             border-color: var(--accent);
-            background: rgba(34, 211, 238, 0.1);
+            background: rgba(6, 182, 212, 0.08);
         }
         
         .question-text {
-            font-size: 1.25rem;
-            margin-bottom: 1.5rem;
-            line-height: 1.8;
+            font-size: 1.125rem;
+            margin-bottom: 1.25rem;
+            line-height: 1.7;
         }
         
         .blank-space {
             display: inline-block;
-            min-width: 120px;
-            padding: 0.25rem 0.5rem;
+            min-width: 100px;
+            padding: 0.25rem 0.625rem;
             background: var(--primary);
-            border-radius: 8px;
+            color: white;
+            border-radius: var(--radius-sm);
             text-align: center;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
         
         .blank-space:hover {
             background: var(--primary-dark);
-            transform: scale(1.05);
+            transform: scale(1.02);
         }
         
         .blank-space.filled {
@@ -734,31 +994,36 @@
         .options-grid {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.75rem;
+            gap: 0.625rem;
             margin-top: 1rem;
         }
         
         .option-btn {
             padding: 0.75rem 1.25rem;
-            background: var(--bg-card);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            color: var(--text);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
             cursor: pointer;
-            font-family: 'Poppins', sans-serif;
-            font-size: 1rem;
-            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
         }
         
         .option-btn:hover:not(:disabled) {
             border-color: var(--primary);
-            background: rgba(139, 92, 246, 0.2);
-            transform: translateY(-2px);
+            background: rgba(99, 102, 241, 0.1);
+            transform: translateY(-1px);
         }
         
         .option-btn.selected {
             border-color: var(--accent);
-            background: rgba(34, 211, 238, 0.2);
+            background: rgba(6, 182, 212, 0.15);
+        }
+        
+        .option-btn.matched {
+            cursor: pointer;
         }
         
         .option-btn:disabled {
@@ -775,14 +1040,14 @@
         
         .tf-btn {
             flex: 1;
-            padding: 1.5rem;
-            border: 3px solid;
-            border-radius: 16px;
+            padding: 1.25rem;
+            border: 2px solid;
+            border-radius: var(--radius-lg);
             cursor: pointer;
-            font-family: 'Poppins', sans-serif;
-            font-size: 1.25rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.125rem;
             font-weight: 700;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             background: transparent;
         }
         
@@ -794,7 +1059,7 @@
         .tf-btn.true:hover:not(:disabled) {
             background: var(--success);
             color: white;
-            transform: scale(1.05);
+            transform: scale(1.02);
         }
         
         .tf-btn.false {
@@ -805,11 +1070,7 @@
         .tf-btn.false:hover:not(:disabled) {
             background: var(--error);
             color: white;
-            transform: scale(1.05);
-        }
-        
-        .tf-btn.selected {
-            transform: scale(1.05);
+            transform: scale(1.02);
         }
         
         .tf-btn.selected.true {
@@ -831,56 +1092,57 @@
         
         .match-column {
             flex: 1;
-            min-width: 250px;
+            min-width: 220px;
         }
         
         .match-column h4 {
             margin-bottom: 1rem;
             color: var(--text-muted);
-            font-size: 0.9rem;
+            font-size: 0.8125rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.05em;
+            font-weight: 600;
         }
         
         .image-drop-zone {
-            background: var(--bg-dark);
-            border: 3px dashed rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            padding: 1.5rem;
-            min-height: 200px;
+            background: var(--bg-secondary);
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-xl);
+            padding: 1.25rem;
+            min-height: 180px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             margin-bottom: 1rem;
         }
         
         .image-drop-zone:hover {
             border-color: var(--primary);
-            background: rgba(139, 92, 246, 0.1);
+            background: rgba(99, 102, 241, 0.05);
         }
         
         .image-drop-zone.selectable {
             cursor: pointer;
             border-color: var(--accent);
-            animation: pulse-border 1s infinite;
+            animation: pulseBorder 1.5s infinite;
         }
         
-        @keyframes pulse-border {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.4); }
-            50% { box-shadow: 0 0 0 10px rgba(34, 211, 238, 0); }
+        @keyframes pulseBorder {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.4); }
+            50% { box-shadow: 0 0 0 8px rgba(6, 182, 212, 0); }
         }
         
         .image-drop-zone img {
             max-width: 100%;
-            max-height: 150px;
-            border-radius: 12px;
-            margin-bottom: 1rem;
+            max-height: 120px;
+            border-radius: var(--radius-md);
+            margin-bottom: 0.75rem;
         }
         
         .image-drop-zone h5 {
-            font-size: 1.1rem;
+            font-size: 1rem;
             margin-bottom: 0.5rem;
         }
         
@@ -888,37 +1150,43 @@
             display: flex;
             flex-wrap: wrap;
             gap: 0.5rem;
-            min-height: 40px;
+            min-height: 36px;
             justify-content: center;
         }
         
         .word-chip {
             padding: 0.5rem 1rem;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            border-radius: 25px;
+            background: var(--gradient-primary);
+            color: white;
+            border-radius: var(--radius-full);
             cursor: pointer;
             font-weight: 500;
-            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
             user-select: none;
         }
         
         .word-chip:hover {
-            transform: scale(1.1);
-            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4);
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
         }
         
         .word-chip.selected {
-            background: linear-gradient(135deg, var(--accent) 0%, #0891b2 100%);
-            box-shadow: 0 0 20px rgba(34, 211, 238, 0.6);
-            transform: scale(1.15);
+            background: var(--gradient-accent);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
+            transform: scale(1.08);
         }
         
         .word-chip.correct {
-            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            background: var(--gradient-success);
         }
         
         .word-chip.incorrect {
-            background: linear-gradient(135deg, var(--error) 0%, #dc2626 100%);
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        
+        .word-chip.decoy {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
         }
         
         .word-chip.placed-word {
@@ -926,10 +1194,10 @@
         }
         
         .word-chip.placed-word::after {
-            content: 'x';
+            content: '×';
             position: absolute;
-            top: -5px;
-            right: -5px;
+            top: -6px;
+            right: -6px;
             width: 18px;
             height: 18px;
             background: var(--error);
@@ -949,48 +1217,29 @@
         .word-bank {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.75rem;
-            padding: 1.5rem;
-            background: var(--bg-dark);
-            border-radius: 16px;
-            min-height: 80px;
+            gap: 0.625rem;
+            padding: 1.25rem;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            min-height: 70px;
             justify-content: center;
-        }
-        
-        /* Image Upload */
-        .image-upload-zone {
-            border: 3px dashed rgba(255, 255, 255, 0.2);
-            border-radius: 16px;
-            padding: 2rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-bottom: 1rem;
-        }
-        
-        .image-upload-zone:hover {
-            border-color: var(--primary);
-            background: rgba(139, 92, 246, 0.1);
-        }
-        
-        .image-upload-zone input {
-            display: none;
         }
         
         /* Score Display */
         .score-display {
-            background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-card-hover) 100%);
-            border-radius: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
             padding: 2rem;
             text-align: center;
             margin-bottom: 2rem;
         }
         
         .score-circle {
-            width: 150px;
-            height: 150px;
+            width: 140px;
+            height: 140px;
             border-radius: 50%;
-            background: conic-gradient(var(--success) var(--score-percent, 0%), var(--bg-dark) 0%);
+            background: conic-gradient(var(--success) var(--score-percent, 0%), var(--bg-secondary) 0%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1001,8 +1250,8 @@
         .score-circle::before {
             content: '';
             position: absolute;
-            width: 120px;
-            height: 120px;
+            width: 110px;
+            height: 110px;
             background: var(--bg-card);
             border-radius: 50%;
         }
@@ -1010,41 +1259,41 @@
         .score-text {
             position: relative;
             z-index: 1;
-            font-size: 2rem;
+            font-size: 1.75rem;
             font-weight: 700;
         }
         
         .score-label {
             color: var(--text-muted);
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
         
         /* Feedback Messages */
         .feedback {
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius-md);
             margin-top: 1rem;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 0.625rem;
             font-weight: 500;
-            animation: slideIn 0.3s ease;
+            animation: slideIn 0.2s ease;
         }
         
         @keyframes slideIn {
-            from { transform: translateX(-20px); opacity: 0; }
+            from { transform: translateX(-10px); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
         
         .feedback.correct {
-            background: rgba(16, 185, 129, 0.2);
-            border: 2px solid var(--success);
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid var(--success);
             color: var(--success);
         }
         
         .feedback.incorrect {
-            background: rgba(239, 68, 68, 0.2);
-            border: 2px solid var(--error);
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid var(--error);
             color: var(--error);
         }
         
@@ -1063,38 +1312,22 @@
             position: absolute;
             width: 10px;
             height: 10px;
-            animation: confetti-fall 3s linear forwards;
+            animation: confettiFall 3s linear forwards;
         }
         
-        @keyframes confetti-fall {
+        @keyframes confettiFall {
             0% { transform: translateY(-100%) rotate(0deg); opacity: 1; }
             100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-        }
-        
-        /* Section Title */
-        .section-title {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-        
-        .section-subtitle {
-            color: var(--text-muted);
-            font-size: 1.1rem;
-            margin-bottom: 2rem;
         }
         
         /* Tabs */
         .tabs {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.375rem;
             margin-bottom: 1.5rem;
-            background: var(--bg-dark);
-            padding: 0.5rem;
-            border-radius: 12px;
+            background: var(--bg-secondary);
+            padding: 0.375rem;
+            border-radius: var(--radius-md);
         }
         
         .tab {
@@ -1102,12 +1335,13 @@
             padding: 0.75rem 1rem;
             background: transparent;
             border: none;
-            border-radius: 8px;
+            border-radius: var(--radius-sm);
             color: var(--text-muted);
             cursor: pointer;
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Inter', sans-serif;
             font-weight: 600;
-            transition: all 0.3s ease;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
         }
         
         .tab.active {
@@ -1116,187 +1350,118 @@
         }
         
         .tab:hover:not(.active) {
-            color: var(--text);
+            color: var(--text-primary);
             background: var(--bg-card-hover);
         }
-
-        /* Category Item Builder */
-        .category-builder {
-            background: var(--bg-dark);
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            border: 2px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .category-builder-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .tags-input {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            padding: 0.75rem;
-            background: var(--bg-card);
-            border-radius: 12px;
-            min-height: 50px;
-            align-items: center;
-        }
-
-        .tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.4rem 0.8rem;
-            background: var(--primary);
-            border-radius: 20px;
-            font-size: 0.9rem;
-        }
-
-        .tag button {
-            background: none;
-            border: none;
-            color: white;
-            cursor: pointer;
-            padding: 0;
-            font-size: 1rem;
-            line-height: 1;
-        }
-
-        .tags-input input {
-            border: none;
-            background: transparent;
-            color: var(--text);
-            outline: none;
-            font-size: 0.95rem;
-            flex: 1;
-            min-width: 100px;
-        }
         
-        /* Exam Builder Styles */
-        .exam-type-selector {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-        
-        .exam-type-option {
-            background: var(--bg-dark);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 1.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
+        /* Empty State */
+        .empty-state {
             text-align: center;
+            padding: 3rem 2rem;
         }
         
-        .exam-type-option:hover {
-            border-color: var(--primary);
-            background: rgba(139, 92, 246, 0.1);
-        }
-        
-        .exam-type-option.selected {
-            border-color: var(--accent);
-            background: rgba(34, 211, 238, 0.15);
-        }
-        
-        .exam-type-option input {
-            display: none;
-        }
-        
-        .exam-type-option .icon {
+        .empty-state-icon {
+            width: 100px;
+            height: 100px;
+            background: var(--bg-secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 2.5rem;
+            margin: 0 auto 1.5rem;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .empty-state h3 {
+            font-size: 1.375rem;
             margin-bottom: 0.5rem;
         }
         
-        .exam-type-option .name {
-            font-weight: 600;
-            font-size: 1rem;
+        .empty-state p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
         }
         
-        /* Link Display */
-        .link-display {
-            background: var(--bg-dark);
-            border: 2px solid var(--accent);
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin: 1.5rem 0;
-        }
-        
-        .link-display input {
-            width: 100%;
-            background: transparent;
-            border: none;
-            color: var(--accent);
-            font-size: 0.95rem;
-            font-family: monospace;
-        }
-        
-        .link-display input:focus {
-            outline: none;
-        }
-        
-        /* Student View Styles */
-        .student-header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            padding: 2rem;
-            border-radius: 24px;
-            margin-bottom: 2rem;
+        /* Success Animation */
+        .success-animation {
             text-align: center;
+            padding: 2.5rem;
         }
         
-        .student-header h2 {
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
+        .success-animation .checkmark {
+            width: 90px;
+            height: 90px;
+            background: var(--success);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+            margin: 0 auto 1.25rem;
+            animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         
-        .student-header p {
-            opacity: 0.9;
+        @keyframes pop {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
         }
         
-        .student-name-input {
-            max-width: 400px;
-            margin: 2rem auto;
+        /* Error Page */
+        .error-page {
             text-align: center;
+            padding: 4rem 2rem;
         }
         
-        .student-name-input input {
-            width: 100%;
-            padding: 1.25rem;
-            font-size: 1.2rem;
-            text-align: center;
-            background: var(--bg-card);
-            border: 3px solid var(--primary);
-            border-radius: 16px;
-            color: var(--text);
-            font-family: 'Poppins', sans-serif;
+        .error-icon {
+            width: 100px;
+            height: 100px;
+            background: var(--error);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+            margin: 0 auto 2rem;
         }
         
-        .student-name-input input:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.2);
-        }
-        
-        /* Progress Bar */
-        .progress-bar {
-            background: var(--bg-card);
-            border-radius: 10px;
-            height: 10px;
-            overflow: hidden;
+        .error-page h2 {
+            color: var(--error);
+            font-size: 1.75rem;
             margin-bottom: 1rem;
         }
         
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
-            border-radius: 10px;
-            transition: width 0.5s ease;
+        .error-page p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-card-hover);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
         }
         
         /* Responsive */
@@ -1304,13 +1469,18 @@
             .header {
                 flex-direction: column;
                 gap: 1rem;
+                padding: 1rem;
             }
             
             .header-actions {
                 justify-content: center;
             }
             
-            .quiz-types-grid {
+            .main-container {
+                padding: 1rem;
+            }
+            
+            .cards-grid {
                 grid-template-columns: 1fr;
             }
             
@@ -1323,103 +1493,39 @@
             }
             
             .modal {
-                margin: 1rem;
-                max-height: calc(100vh - 2rem);
+                margin: 0.5rem;
+                max-height: calc(100vh - 1rem);
+            }
+            
+            .section-title {
+                font-size: 1.75rem;
             }
             
             .exam-type-selector {
                 grid-template-columns: 1fr 1fr;
             }
+            
+            .student-header {
+                padding: 1.5rem;
+            }
+            
+            .student-header h2 {
+                font-size: 1.5rem;
+            }
         }
         
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: var(--bg-dark);
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: var(--bg-card-hover);
-            border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--primary);
-        }
-        
-        /* Success Animation */
-        .success-animation {
-            text-align: center;
-            padding: 3rem;
-        }
-        
-        .success-animation .checkmark {
-            width: 100px;
-            height: 100px;
-            background: var(--success);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3rem;
-            margin: 0 auto 1.5rem;
-            animation: pop 0.5s ease;
-        }
-        
-        @keyframes pop {
-            0% { transform: scale(0); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
-        
-        /* Matched words indicator */
-        .option-btn.matched {
-            cursor: pointer;
-        }
-        
-        .option-btn.matched:hover {
-            opacity: 0.8;
-        }
-        
-        /* Error Page */
-        .error-page {
-            text-align: center;
-            padding: 4rem 2rem;
-        }
-        
-        .error-icon {
-            width: 120px;
-            height: 120px;
-            background: var(--error);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3rem;
-            margin: 0 auto 2rem;
-        }
-        
-        .error-page h2 {
-            color: var(--error);
-            font-size: 2rem;
-            margin-bottom: 1rem;
-        }
-        
-        .error-page p {
-            color: var(--text-muted);
-            font-size: 1.1rem;
-            margin-bottom: 0.5rem;
+        /* Shake animation */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
         }
     </style>
 </head>
 <body>
-    <!-- Background Animation -->
-    <div class="bg-animation"></div>
-    <div class="particles" id="particles"></div>
+    <!-- Ambient Background -->
+    <div class="ambient-bg"></div>
+    <div class="noise-overlay"></div>
     
     <!-- Confetti Container -->
     <div class="confetti-container" id="confetti"></div>
@@ -1427,25 +1533,25 @@
     <!-- Header -->
     <header class="header" id="mainHeader">
         <div class="logo">
-            <div class="logo-icon">&#x1F4DA;</div>
+            <div class="logo-icon">📚</div>
             <h1>Arabic by Rolla</h1>
         </div>
         <div class="header-actions" id="headerActions">
-            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Light/Dark Mode" id="themeToggleBtn">
-                &#x2600;
+            <button class="btn btn-icon" onclick="toggleTheme()" title="Toggle Theme" id="themeToggleBtn">
+                ☀️
             </button>
             <button class="btn btn-secondary" onclick="goHome()">
-                Home
+                🏠 Home
             </button>
             <button class="btn btn-danger" onclick="resetAll()">
-                Reset All
+                🗑️ Reset
             </button>
         </div>
     </header>
     
     <!-- Main Container -->
     <main class="main-container" id="mainContainer">
-        <!-- Will be dynamically rendered -->
+        <!-- Dynamic content -->
     </main>
     
     <!-- Modal Overlay -->
@@ -1453,7 +1559,7 @@
         <div class="modal" id="modal">
             <div class="modal-header">
                 <h2 id="modalTitle">Quiz</h2>
-                <button class="close-btn" onclick="closeModal()">&times;</button>
+                <button class="close-btn" onclick="closeModal()">×</button>
             </div>
             <div class="modal-body" id="modalBody">
                 <!-- Dynamic content -->
@@ -1472,19 +1578,48 @@
         // ==================== DATA STORAGE ====================
         let quizData = {
             fillBlank: { questions: [] },
-            relatedWords: { categories: [] },
+            relatedWords: { categories: [], decoyWords: [] },
             matchWords: { pairs: [] },
             trueFalse: { questions: [] }
         };
         
         let examsData = {};
-        let submissionsData = {}; // Track who submitted what exam
+        let submissionsData = {};
         let isStudentMode = false;
         let currentExamId = null;
-        let currentExamData = null; // For URL-based exam data
+        let currentExamData = null;
         let studentName = '';
         let studentAnswers = {};
         let currentView = 'main';
+        
+        // ==================== URL COMPRESSION ====================
+        // Use LZ-String for aggressive compression - keeps URLs small regardless of exam size
+        function compressExamData(exam) {
+            const json = JSON.stringify(exam);
+            // Use LZ-String's URI-safe compression
+            return LZString.compressToEncodedURIComponent(json);
+        }
+        
+        function decompressExamData(compressed) {
+            try {
+                const json = LZString.decompressFromEncodedURIComponent(compressed);
+                if (!json) return null;
+                return JSON.parse(json);
+            } catch (e) {
+                console.error('Failed to decompress exam data:', e);
+                return null;
+            }
+        }
+        
+        // Legacy decoder for old base64 links
+        function decodeExamDataLegacy(encoded) {
+            try {
+                const json = decodeURIComponent(escape(atob(encoded)));
+                return JSON.parse(json);
+            } catch (e) {
+                return null;
+            }
+        }
         
         // ==================== THEME TOGGLE ====================
         function toggleTheme() {
@@ -1498,7 +1633,7 @@
             const btn = document.getElementById('themeToggleBtn');
             if (btn) {
                 const isLight = document.body.classList.contains('light-theme');
-                btn.innerHTML = isLight ? '&#x1F319;' : '&#x2600;';
+                btn.textContent = isLight ? '🌙' : '☀️';
             }
         }
         
@@ -1510,11 +1645,19 @@
             updateThemeIcon();
         }
         
-        // Load from localStorage
+        // ==================== DATA MANAGEMENT ====================
         function loadData() {
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
-                quizData = JSON.parse(saved);
+                const parsed = JSON.parse(saved);
+                quizData = {
+                    ...quizData,
+                    ...parsed,
+                    relatedWords: {
+                        categories: parsed.relatedWords?.categories || [],
+                        decoyWords: parsed.relatedWords?.decoyWords || []
+                    }
+                };
             }
             const savedExams = localStorage.getItem(EXAMS_STORAGE_KEY);
             if (savedExams) {
@@ -1526,7 +1669,6 @@
             }
         }
         
-        // Save to localStorage
         function saveData() {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(quizData));
         }
@@ -1539,34 +1681,16 @@
             localStorage.setItem(SUBMISSIONS_KEY, JSON.stringify(submissionsData));
         }
         
-        // ==================== URL-BASED EXAM DATA ====================
-        // Compress and encode exam data for URL
-        function encodeExamData(exam) {
-            const json = JSON.stringify(exam);
-            // Use base64 encoding
-            return btoa(unescape(encodeURIComponent(json)));
-        }
-        
-        // Decode exam data from URL
-        function decodeExamData(encoded) {
-            try {
-                const json = decodeURIComponent(escape(atob(encoded)));
-                return JSON.parse(json);
-            } catch (e) {
-                console.error('Failed to decode exam data:', e);
-                return null;
-            }
-        }
-        
-        // Check if we're in student mode from URL
+        // ==================== STUDENT MODE CHECK ====================
         function checkStudentMode() {
             const params = new URLSearchParams(window.location.search);
-            const examData = params.get('data');
-            const examId = params.get('exam');
+            const compressedData = params.get('e'); // New compressed format
+            const legacyData = params.get('data'); // Legacy base64 format
+            const examId = params.get('exam'); // Very old localStorage format
             
-            // New URL format with embedded data
-            if (examData) {
-                const decoded = decodeExamData(examData);
+            // Try new compressed format first
+            if (compressedData) {
+                const decoded = decompressExamData(compressedData);
                 if (decoded) {
                     isStudentMode = true;
                     currentExamId = decoded.id || 'embedded';
@@ -1574,13 +1698,23 @@
                     document.getElementById('mainHeader').style.display = 'none';
                     renderStudentExam();
                     return true;
-                } else {
-                    renderExamNotFound();
+                }
+            }
+            
+            // Try legacy base64 format
+            if (legacyData) {
+                const decoded = decodeExamDataLegacy(legacyData);
+                if (decoded) {
+                    isStudentMode = true;
+                    currentExamId = decoded.id || 'embedded';
+                    currentExamData = decoded;
+                    document.getElementById('mainHeader').style.display = 'none';
+                    renderStudentExam();
                     return true;
                 }
             }
             
-            // Legacy support for old localStorage-based links
+            // Try localStorage format
             if (examId && examsData[examId]) {
                 isStudentMode = true;
                 currentExamId = examId;
@@ -1590,8 +1724,8 @@
                 return true;
             }
             
-            // If there's an exam parameter but no data found
-            if (examId || examData) {
+            // If there's a parameter but no valid data
+            if (compressedData || legacyData || examId) {
                 renderExamNotFound();
                 return true;
             }
@@ -1604,7 +1738,7 @@
             const container = document.getElementById('mainContainer');
             container.innerHTML = `
                 <div class="error-page">
-                    <div class="error-icon">&#x26A0;</div>
+                    <div class="error-icon">⚠️</div>
                     <h2>Exam Not Found</h2>
                     <p>This exam link may have expired, been deleted, or is no longer available.</p>
                     <p>Please contact your teacher for a new link.</p>
@@ -1612,12 +1746,11 @@
             `;
         }
         
-        // Reset all data
         function resetAll() {
             if (confirm('Are you sure you want to reset all quizzes and exams? This cannot be undone!')) {
                 quizData = {
                     fillBlank: { questions: [] },
-                    relatedWords: { categories: [] },
+                    relatedWords: { categories: [], decoyWords: [] },
                     matchWords: { pairs: [] },
                     trueFalse: { questions: [] }
                 };
@@ -1639,68 +1772,70 @@
             const container = document.getElementById('mainContainer');
             container.innerHTML = `
                 <section id="homeView">
-                    <h2 class="section-title">Welcome, Teacher!</h2>
-                    <p class="section-subtitle">Create interactive quizzes and exams for your students</p>
+                    <div class="section-header">
+                        <h2 class="section-title">Welcome, Teacher!</h2>
+                        <p class="section-subtitle">Create interactive quizzes and exams for your students</p>
+                    </div>
                     
                     <!-- Telegram Settings -->
-                    <div style="background: var(--bg-card); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem;">
-                        <h3 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="font-size: 1.5rem;">&#x1F4E9;</span> Telegram Settings
+                    <div class="settings-card">
+                        <h3>
+                            <span>📩</span> Telegram Notifications
                         </h3>
-                        <div class="form-group" style="margin-bottom: 1rem;">
+                        <div class="form-group" style="margin-bottom: 0;">
                             <label>Your Telegram Chat ID</label>
                             <input type="text" id="chatIdInput" placeholder="Enter your Telegram Chat ID" 
                                 value="${TELEGRAM_CHAT_ID}" onchange="saveChatId(this.value)">
-                            <p class="form-hint">Get your Chat ID by messaging @userinfobot on Telegram</p>
+                            <p class="form-hint">Get your Chat ID by messaging @userinfobot on Telegram. Student submissions will be sent to this chat.</p>
                         </div>
                     </div>
                     
                     <!-- Create Exam Button -->
                     <div class="create-exam-card" onclick="openExamBuilder()">
-                        <div style="font-size: 3rem; margin-bottom: 1rem;">&#x1F4DD;</div>
+                        <div class="icon">📝</div>
                         <h3>Create Shareable Exam</h3>
-                        <p style="color: var(--text-muted);">Combine quiz types into an exam and share with students via link</p>
+                        <p>Combine quiz types into an exam and share with students via a short, compact link</p>
                     </div>
                     
-                    <h3 style="margin: 2rem 0 1rem; color: var(--text-muted);">Practice Quiz Types</h3>
+                    <h3 style="margin: 2rem 0 0.5rem; color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;">Practice Quiz Types</h3>
                     
-                    <div class="quiz-types-grid">
+                    <div class="cards-grid">
                         <!-- Fill the Blank -->
                         <div class="quiz-card" onclick="openQuizModal('fillBlank')">
-                            <span class="quiz-badge ${quizData.fillBlank.questions.length > 0 ? 'badge-ready' : 'badge-empty'}" id="fillBlankBadge">
-                                ${quizData.fillBlank.questions.length > 0 ? quizData.fillBlank.questions.length + ' Questions' : 'No Quiz'}
+                            <span class="quiz-badge ${quizData.fillBlank.questions.length > 0 ? 'badge-ready' : 'badge-empty'}">
+                                ${quizData.fillBlank.questions.length > 0 ? quizData.fillBlank.questions.length + ' Questions' : 'Empty'}
                             </span>
-                            <div class="quiz-card-icon fill-blank">&#x1F4DD;</div>
+                            <div class="quiz-card-icon fill-blank">📝</div>
                             <h3>Fill in the Blank</h3>
                             <p>Create sentences with missing words. Students choose from multiple options.</p>
                         </div>
                         
                         <!-- Related Words -->
                         <div class="quiz-card" onclick="openQuizModal('relatedWords')">
-                            <span class="quiz-badge ${quizData.relatedWords.categories.length > 0 ? 'badge-ready' : 'badge-empty'}" id="relatedWordsBadge">
-                                ${quizData.relatedWords.categories.length > 0 ? quizData.relatedWords.categories.length + ' Categories' : 'No Quiz'}
+                            <span class="quiz-badge ${quizData.relatedWords.categories.length > 0 ? 'badge-ready' : 'badge-empty'}">
+                                ${quizData.relatedWords.categories.length > 0 ? quizData.relatedWords.categories.length + ' Categories' : 'Empty'}
                             </span>
-                            <div class="quiz-card-icon related-words">&#x1F5BC;</div>
+                            <div class="quiz-card-icon related-words">🖼️</div>
                             <h3>Picture Word Match</h3>
-                            <p>Upload images and let students match related words to pictures.</p>
+                            <p>Upload images and let students match related words to pictures. Add decoy words to make it challenging!</p>
                         </div>
                         
                         <!-- Match Words -->
                         <div class="quiz-card" onclick="openQuizModal('matchWords')">
-                            <span class="quiz-badge ${quizData.matchWords.pairs.length > 0 ? 'badge-ready' : 'badge-empty'}" id="matchWordsBadge">
-                                ${quizData.matchWords.pairs.length > 0 ? quizData.matchWords.pairs.length + ' Pairs' : 'No Quiz'}
+                            <span class="quiz-badge ${quizData.matchWords.pairs.length > 0 ? 'badge-ready' : 'badge-empty'}">
+                                ${quizData.matchWords.pairs.length > 0 ? quizData.matchWords.pairs.length + ' Pairs' : 'Empty'}
                             </span>
-                            <div class="quiz-card-icon match-words">&#x1F517;</div>
+                            <div class="quiz-card-icon match-words">🔗</div>
                             <h3>Match the Words</h3>
                             <p>Create word pairs for students to match - great for synonyms and translations!</p>
                         </div>
                         
                         <!-- True/False -->
                         <div class="quiz-card" onclick="openQuizModal('trueFalse')">
-                            <span class="quiz-badge ${quizData.trueFalse.questions.length > 0 ? 'badge-ready' : 'badge-empty'}" id="trueFalseBadge">
-                                ${quizData.trueFalse.questions.length > 0 ? quizData.trueFalse.questions.length + ' Questions' : 'No Quiz'}
+                            <span class="quiz-badge ${quizData.trueFalse.questions.length > 0 ? 'badge-ready' : 'badge-empty'}">
+                                ${quizData.trueFalse.questions.length > 0 ? quizData.trueFalse.questions.length + ' Questions' : 'Empty'}
                             </span>
-                            <div class="quiz-card-icon true-false">&#x2713;&#x2717;</div>
+                            <div class="quiz-card-icon true-false">✓✗</div>
                             <h3>True or False</h3>
                             <p>Create statements and let students decide if they are true or false.</p>
                         </div>
@@ -1720,7 +1855,7 @@
             const modalEl = document.getElementById('modal');
             modalEl.classList.add('wide');
             modal.classList.add('active');
-            document.getElementById('modalTitle').innerHTML = 'Create Shareable Exam';
+            document.getElementById('modalTitle').innerHTML = '📝 Create Shareable Exam';
             renderExamBuilderStep1();
         }
         
@@ -1732,7 +1867,8 @@
                 trueFalse: [],
                 matchWords: [],
                 relatedWords: []
-            }
+            },
+            decoyWords: []
         };
         
         function renderExamBuilderStep1() {
@@ -1744,7 +1880,8 @@
                     trueFalse: [],
                     matchWords: [],
                     relatedWords: []
-                }
+                },
+                decoyWords: []
             };
             
             const body = document.getElementById('modalBody');
@@ -1758,22 +1895,22 @@
                 <div class="exam-type-selector">
                     <label class="exam-type-option" id="opt-fillBlank">
                         <input type="checkbox" value="fillBlank" onchange="toggleExamType('fillBlank')">
-                        <div class="icon">&#x1F4DD;</div>
+                        <div class="icon">📝</div>
                         <div class="name">Fill in the Blank</div>
                     </label>
                     <label class="exam-type-option" id="opt-trueFalse">
                         <input type="checkbox" value="trueFalse" onchange="toggleExamType('trueFalse')">
-                        <div class="icon">&#x2713;&#x2717;</div>
+                        <div class="icon">✓✗</div>
                         <div class="name">True or False</div>
                     </label>
                     <label class="exam-type-option" id="opt-matchWords">
                         <input type="checkbox" value="matchWords" onchange="toggleExamType('matchWords')">
-                        <div class="icon">&#x1F517;</div>
+                        <div class="icon">🔗</div>
                         <div class="name">Match Words</div>
                     </label>
                     <label class="exam-type-option" id="opt-relatedWords">
                         <input type="checkbox" value="relatedWords" onchange="toggleExamType('relatedWords')">
-                        <div class="icon">&#x1F5BC;</div>
+                        <div class="icon">🖼️</div>
                         <div class="name">Picture Match</div>
                     </label>
                 </div>
@@ -1781,7 +1918,7 @@
                 <div style="display: flex; gap: 1rem; margin-top: 2rem;">
                     <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
                     <button class="btn btn-gradient" onclick="goToExamStep2()" style="flex: 1;">
-                        Continue to Add Questions
+                        Continue to Add Questions →
                     </button>
                 </div>
             `;
@@ -1812,6 +1949,10 @@
             renderExamBuilderStep2();
         }
         
+        let examTempImages = {};
+        let examTempWords = {};
+        let examTempDecoyWords = [];
+        
         function renderExamBuilderStep2() {
             const body = document.getElementById('modalBody');
             
@@ -1821,7 +1962,7 @@
                 sectionsHtml += `
                     <div style="margin-bottom: 2rem;">
                         <h3 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="background: var(--primary); padding: 0.25rem 0.75rem; border-radius: 8px;">&#x1F4DD;</span>
+                            <span style="background: var(--gradient-primary); padding: 0.375rem 0.875rem; border-radius: var(--radius-full); color: white; font-size: 0.875rem;">📝</span>
                             Fill in the Blank Questions
                         </h3>
                         <div id="fillBlankContainer">
@@ -1838,7 +1979,7 @@
                 sectionsHtml += `
                     <div style="margin-bottom: 2rem;">
                         <h3 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="background: var(--success); padding: 0.25rem 0.75rem; border-radius: 8px;">&#x2713;&#x2717;</span>
+                            <span style="background: var(--gradient-success); padding: 0.375rem 0.875rem; border-radius: var(--radius-full); color: white; font-size: 0.875rem;">✓✗</span>
                             True or False Questions
                         </h3>
                         <div id="trueFalseContainer">
@@ -1855,7 +1996,7 @@
                 sectionsHtml += `
                     <div style="margin-bottom: 2rem;">
                         <h3 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="background: var(--accent); padding: 0.25rem 0.75rem; border-radius: 8px; color: #1e293b;">&#x1F517;</span>
+                            <span style="background: var(--gradient-accent); padding: 0.375rem 0.875rem; border-radius: var(--radius-full); color: #1e293b; font-size: 0.875rem;">🔗</span>
                             Match Words Pairs
                         </h3>
                         <div id="matchWordsContainer">
@@ -1872,7 +2013,7 @@
                 sectionsHtml += `
                     <div style="margin-bottom: 2rem;">
                         <h3 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="background: var(--secondary); padding: 0.25rem 0.75rem; border-radius: 8px;">&#x1F5BC;</span>
+                            <span style="background: var(--gradient-secondary); padding: 0.375rem 0.875rem; border-radius: var(--radius-full); color: white; font-size: 0.875rem;">🖼️</span>
                             Picture Word Match Categories
                         </h3>
                         <div id="relatedWordsContainer">
@@ -1881,17 +2022,39 @@
                         <button class="btn btn-secondary" onclick="addExamCategoryQ()" style="width: 100%; margin-top: 0.5rem;">
                             + Add Category
                         </button>
+                        
+                        <!-- Decoy Words Section -->
+                        <div class="category-builder" style="margin-top: 1.5rem; border-color: var(--warning); background: rgba(245, 158, 11, 0.05);">
+                            <div class="category-builder-header">
+                                <span style="background: var(--warning); padding: 0.25rem 0.75rem; border-radius: var(--radius-full); font-size: 0.8125rem; font-weight: 600; color: #1e293b;">
+                                    🎭 Decoy Words (Trick Students!)
+                                </span>
+                            </div>
+                            <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1rem;">
+                                Add fake words that don't belong to any category. Students won't lose points for not placing these - they're just distractors!
+                            </p>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <div class="tags-input" id="examDecoyTags">
+                                    ${(examTempDecoyWords || []).map(w => `
+                                        <span class="tag decoy-tag">${w} <button onclick="removeExamDecoyWord('${escapeHtml(w)}')">&times;</button></span>
+                                    `).join('')}
+                                    <input type="text" id="examDecoyWordInput" placeholder="Type decoy word and press Enter" 
+                                        onkeypress="handleExamDecoyWord(event)">
+                                </div>
+                                <p class="form-hint">Example: If categories are "Food" and "Drinks", add animal words as decoys!</p>
+                            </div>
+                        </div>
                     </div>
                 `;
             }
             
             body.innerHTML = `
-                <h3 style="margin-bottom: 1.5rem;">Add Questions for: ${examBuilder.title}</h3>
+                <h3 style="margin-bottom: 1.5rem; font-size: 1.125rem;">Add Questions for: <span style="color: var(--primary);">${examBuilder.title}</span></h3>
                 ${sectionsHtml}
                 <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-                    <button class="btn btn-secondary" onclick="renderExamBuilderStep1()">Back</button>
+                    <button class="btn btn-secondary" onclick="renderExamBuilderStep1()">← Back</button>
                     <button class="btn btn-success" onclick="generateExamLink()" style="flex: 1;">
-                        Generate Exam Link
+                        🔗 Generate Exam Link
                     </button>
                 </div>
             `;
@@ -1911,9 +2074,39 @@
             }
         }
         
+        // Decoy words handling
+        function handleExamDecoyWord(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                const input = document.getElementById('examDecoyWordInput');
+                const word = input.value.trim();
+                if (word && !examTempDecoyWords.includes(word)) {
+                    examTempDecoyWords.push(word);
+                    
+                    const container = document.getElementById('examDecoyTags');
+                    const tag = document.createElement('span');
+                    tag.className = 'tag decoy-tag';
+                    tag.innerHTML = `${word} <button onclick="removeExamDecoyWord('${escapeHtml(word)}')">&times;</button>`;
+                    container.insertBefore(tag, input);
+                    input.value = '';
+                }
+            }
+        }
+        
+        function removeExamDecoyWord(word) {
+            examTempDecoyWords = examTempDecoyWords.filter(w => w !== word);
+            const container = document.getElementById('examDecoyTags');
+            const tags = container.querySelectorAll('.tag');
+            tags.forEach(tag => {
+                if (tag.textContent.trim().replace('×', '').trim() === word) {
+                    tag.remove();
+                }
+            });
+        }
+        
         // Fill in the Blank for Exam
         function renderExamFillBlankQ(q = null, index = 0) {
-            const question = q || { sentence: '', blankWord: '', options: ['', '', '', ''] };
+            const question = q || { sentence: '', blankWord: '', options: ['', '', ''] };
             return `
                 <div class="question-builder" id="examFB-${index}">
                     <span class="question-number">Q${index + 1}</span>
@@ -1962,11 +2155,11 @@
                         <div style="display: flex; gap: 1rem;">
                             <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
                                 <input type="radio" name="examTFAnswer-${index}" value="true" ${question.isTrue ? 'checked' : ''}>
-                                <span style="color: var(--success);">True</span>
+                                <span style="color: var(--success); font-weight: 600;">True</span>
                             </label>
                             <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
                                 <input type="radio" name="examTFAnswer-${index}" value="false" ${!question.isTrue ? 'checked' : ''}>
-                                <span style="color: var(--error);">False</span>
+                                <span style="color: var(--error); font-weight: 600;">False</span>
                             </label>
                         </div>
                     </div>
@@ -1988,7 +2181,7 @@
                 <div class="question-builder" id="examMatch-${index}" style="display: flex; gap: 1rem; align-items: center;">
                     <span class="question-number">${index + 1}</span>
                     <input type="text" id="examMatchW1-${index}" value="${question.word1}" placeholder="Word 1" style="flex: 1;">
-                    <span style="font-size: 1.5rem;">&#x2194;</span>
+                    <span style="font-size: 1.25rem; color: var(--text-muted);">↔</span>
                     <input type="text" id="examMatchW2-${index}" value="${question.word2}" placeholder="Word 2" style="flex: 1;">
                     <button class="remove-question" onclick="removeExamQ('matchWords', ${index})" style="position: relative; top: 0; right: 0;">&times;</button>
                 </div>
@@ -2003,34 +2196,20 @@
         }
         
         // Category for Exam (Picture Match)
-        let examTempImages = {};
-        let examTempWords = {};
-        
         function renderExamCategoryQ(q = null, index = 0) {
-            const cat = q || { name: '', image: '', words: [] };
+            const cat = q || { name: '', words: [] };
             examTempWords[index] = examTempWords[index] || [...(cat.words || [])];
             return `
                 <div class="category-builder" id="examCat-${index}">
                     <div class="category-builder-header">
-                        <span style="background: var(--secondary); padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem;">
-                            Category ${index + 1}
-                        </span>
+                        <span class="category-label">Category ${index + 1}</span>
                         <button class="remove-question" onclick="removeExamQ('relatedWords', ${index})" style="position: relative; top: 0; right: 0;">&times;</button>
                     </div>
                     <div class="form-group">
                         <label>Category Name</label>
-                        <input type="text" id="examCatName-${index}" value="${cat.name}" placeholder="e.g., Animals, Fruits">
+                        <input type="text" id="examCatName-${index}" value="${cat.name}" placeholder="e.g., Animals, Fruits, Food">
                     </div>
-                    <div class="form-group">
-                        <label>Image (optional)</label>
-                        <div class="image-upload-zone" onclick="document.getElementById('examCatImg-${index}').click()">
-                            <input type="file" id="examCatImg-${index}" accept="image/*" onchange="handleExamCatImage(${index}, this)" style="display:none;">
-                            <div id="examCatImgPreview-${index}">
-                                ${cat.image ? `<img src="${cat.image}" style="max-width: 150px; border-radius: 12px;">` : 'Click to upload image'}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
+                    <div class="form-group" style="margin-bottom: 0;">
                         <label>Words that belong to this category</label>
                         <div class="tags-input" id="examCatTags-${index}">
                             ${(examTempWords[index] || []).map(w => `
@@ -2049,19 +2228,6 @@
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML.replace(/'/g, "\\'");
-        }
-        
-        function handleExamCatImage(index, input) {
-            const file = input.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const preview = document.getElementById(`examCatImgPreview-${index}`);
-                    preview.innerHTML = `<img src="${e.target.result}" style="max-width: 150px; border-radius: 12px;">`;
-                    examTempImages[index] = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
         }
         
         function handleExamCatWord(event, index) {
@@ -2090,7 +2256,7 @@
             const container = document.getElementById(`examCatTags-${index}`);
             const tags = container.querySelectorAll('.tag');
             tags.forEach(tag => {
-                if (tag.textContent.trim().replace('x', '').trim() === word) {
+                if (tag.textContent.trim().replace('×', '').trim() === word) {
                     tag.remove();
                 }
             });
@@ -2099,7 +2265,7 @@
         function addExamCategoryQ() {
             const container = document.getElementById('relatedWordsContainer');
             const index = container.children.length;
-            examBuilder.questions.relatedWords.push({ name: '', image: '', words: [] });
+            examBuilder.questions.relatedWords.push({ name: '', words: [] });
             examTempWords[index] = [];
             container.insertAdjacentHTML('beforeend', renderExamCategoryQ(null, index));
         }
@@ -2114,7 +2280,6 @@
             const container = document.getElementById(containerIds[type]);
             if (container && container.children.length > 1) {
                 container.children[index].remove();
-                // Re-render to fix indices
                 if (type === 'relatedWords') {
                     delete examTempWords[index];
                     delete examTempImages[index];
@@ -2127,7 +2292,8 @@
                 fillBlank: [],
                 trueFalse: [],
                 matchWords: [],
-                relatedWords: []
+                relatedWords: [],
+                decoyWords: examTempDecoyWords || []
             };
             
             // Fill in the Blank
@@ -2171,17 +2337,15 @@
                 }
             }
             
-            // Related Words (Category Match - NO images in exam to keep URL small)
+            // Related Words (Category Match - NO images to keep URL small)
             if (examBuilder.selectedTypes.includes('relatedWords')) {
                 const container = document.getElementById('relatedWordsContainer');
                 for (let i = 0; i < container.children.length; i++) {
                     const name = document.getElementById(`examCatName-${i}`)?.value || '';
-                    // NOTE: We intentionally do NOT include images in exam data to keep URL size manageable
-                    // Images are stored as base64 which makes URLs too long and uncopiable
                     const words = examTempWords[i] || [];
                     
                     if (name && words.length > 0) {
-                        questions.relatedWords.push({ name, words }); // No image field
+                        questions.relatedWords.push({ name, words });
                     }
                 }
             }
@@ -2206,35 +2370,48 @@
                 return;
             }
             
-            const examId = 'exam_' + Date.now();
+            const examId = 'e_' + Date.now().toString(36);
             const exam = {
                 id: examId,
-                title: examBuilder.title,
-                questions: questions,
-                createdAt: new Date().toISOString(),
-                telegramChatId: TELEGRAM_CHAT_ID || ''  // Embed chat ID in exam data
+                t: examBuilder.title, // Shortened key names for compression
+                q: questions,
+                c: TELEGRAM_CHAT_ID || ''
             };
             
             // Save locally too
-            examsData[examId] = exam;
+            examsData[examId] = {
+                id: examId,
+                title: examBuilder.title,
+                questions: questions,
+                telegramChatId: TELEGRAM_CHAT_ID || '',
+                createdAt: new Date().toISOString()
+            };
             saveExams();
             
-            // Generate URL with embedded data
-            const encodedData = encodeExamData(exam);
+            // Generate URL with COMPRESSED data
+            const compressedData = compressExamData(exam);
             const baseUrl = window.location.href.split('?')[0];
-            const examLink = `${baseUrl}?data=${encodedData}`;
+            const examLink = `${baseUrl}?e=${compressedData}`;
             
             // Reset temp data
             examTempImages = {};
             examTempWords = {};
+            examTempDecoyWords = [];
             
-            // Show link
+            // Show link with size comparison
+            const originalSize = JSON.stringify(exam).length;
+            const compressedSize = compressedData.length;
+            const savings = Math.round((1 - compressedSize / originalSize) * 100);
+            
             const body = document.getElementById('modalBody');
             body.innerHTML = `
                 <div class="success-animation">
-                    <div class="checkmark">&#x2713;</div>
+                    <div class="checkmark">✓</div>
                     <h3>Exam Created Successfully!</h3>
-                    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Share this link with your students</p>
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">Share this compact link with your students</p>
+                    <p style="color: var(--success); font-size: 0.875rem;">
+                        📦 Link compressed by ${savings}% (${compressedSize} chars vs ${originalSize} original)
+                    </p>
                 </div>
                 
                 <div class="link-display">
@@ -2243,16 +2420,16 @@
                 
                 <div style="display: flex; gap: 1rem;">
                     <button class="btn btn-primary" onclick="copyExamLink()" style="flex: 1;">
-                        Copy Link
+                        📋 Copy Link
                     </button>
                     <button class="btn btn-secondary" onclick="closeModal()">
                         Done
                     </button>
                 </div>
                 
-                <p style="margin-top: 1.5rem; color: var(--text-muted); font-size: 0.9rem; text-align: center;">
-                    Note: This link contains all exam data and will work for anyone you share it with.
-                    <br>Students can only submit once per name.
+                <p style="margin-top: 1.5rem; color: var(--text-muted); font-size: 0.8125rem; text-align: center;">
+                    This link contains all exam data and works on any device/browser.<br>
+                    Students can only submit once per name.
                 </p>
             `;
             
@@ -2262,22 +2439,39 @@
         function copyExamLink() {
             const input = document.getElementById('examLinkInput');
             input.select();
-            document.execCommand('copy');
+            input.setSelectionRange(0, 99999);
             
-            const btn = event.target;
-            const originalText = btn.textContent;
-            btn.textContent = 'Copied!';
-            btn.style.background = 'var(--success)';
-            setTimeout(() => {
-                btn.textContent = originalText;
-                btn.style.background = '';
-            }, 2000);
+            navigator.clipboard.writeText(input.value).then(() => {
+                const btn = event.target;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '✓ Copied!';
+                btn.style.background = 'var(--success)';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = '';
+                }, 2000);
+            });
         }
         
         // ==================== STUDENT VIEW ====================
         function renderStudentExam() {
+            // Decode compressed exam format
             const exam = currentExamData;
-            if (!exam) {
+            
+            // Handle both old and new format
+            const examTitle = exam.title || exam.t || 'Exam';
+            const examQuestions = exam.questions || exam.q || {};
+            const telegramId = exam.telegramChatId || exam.c || '';
+            
+            // Store normalized data
+            currentExamData = {
+                id: exam.id,
+                title: examTitle,
+                questions: examQuestions,
+                telegramChatId: telegramId
+            };
+            
+            if (!currentExamData) {
                 renderExamNotFound();
                 return;
             }
@@ -2285,29 +2479,28 @@
             const container = document.getElementById('mainContainer');
             container.innerHTML = `
                 <div style="text-align: center; margin-bottom: 2rem;">
-                    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Light/Dark Mode" id="studentThemeBtn">
-                        ${document.body.classList.contains('light-theme') ? '&#x1F319;' : '&#x2600;'}
+                    <button class="btn btn-icon" onclick="toggleTheme()" title="Toggle Theme" id="studentThemeBtn">
+                        ${document.body.classList.contains('light-theme') ? '🌙' : '☀️'}
                     </button>
                 </div>
                 <div class="student-header">
-                    <h2>${exam.title}</h2>
-                    <p>Enter your name to begin</p>
+                    <h2>${currentExamData.title}</h2>
+                    <p>Enter your name to begin the exam</p>
                 </div>
                 
                 <div class="student-name-input">
                     <div class="form-group">
-                        <label style="text-align: center; font-size: 1.1rem;">Your Name</label>
+                        <label style="text-align: center; font-size: 1rem;">Your Name</label>
                         <input type="text" id="studentNameInput" placeholder="Enter your full name" autofocus>
                     </div>
-                    <button class="btn btn-gradient" onclick="startExam()" style="width: 100%; margin-top: 1rem; font-size: 1.1rem; padding: 1.25rem;">
-                        Start Exam
+                    <button class="btn btn-gradient" onclick="startExam()" style="width: 100%; margin-top: 1rem; font-size: 1.125rem; padding: 1.25rem;">
+                        Start Exam →
                     </button>
                 </div>
                 
-                <div style="text-align: center; margin-top: 2rem; color: var(--text-muted);">
+                <div style="text-align: center; margin-top: 2rem; color: var(--text-secondary);">
                     <p>You can change your answers before submitting.</p>
-                    <p style="color: var(--warning);">Note: You can only submit once!</p>
-                    <p>Good luck!</p>
+                    <p style="color: var(--warning); font-weight: 500; margin-top: 0.5rem;">⚠️ You can only submit once!</p>
                 </div>
             `;
             
@@ -2323,11 +2516,11 @@
                 return;
             }
             
-            // Check if this student already submitted this exam
+            // Check if this student already submitted
             const submissionKey = `${currentExamId}_${name.toLowerCase()}`;
             if (submissionsData[submissionKey]) {
-                const prevSubmission = submissionsData[submissionKey];
-                alert(`You have already submitted this exam!\n\nYour previous score: ${prevSubmission.score}/${prevSubmission.total} (${prevSubmission.percentage}%)`);
+                const prev = submissionsData[submissionKey];
+                alert(`You have already submitted this exam!\n\nYour previous score: ${prev.score}/${prev.total} (${prev.percentage}%)`);
                 return;
             }
             
@@ -2352,11 +2545,11 @@
             if (exam.questions.fillBlank && exam.questions.fillBlank.length > 0) {
                 totalQuestions += exam.questions.fillBlank.length;
                 sectionsHtml += `
-                    <h3 style="margin: 2rem 0 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                        <span style="background: var(--primary); padding: 0.5rem 1rem; border-radius: 12px;">&#x1F4DD;</span>
+                    <h3 style="margin: 2rem 0 1rem; display: flex; align-items: center; gap: 0.625rem;">
+                        <span style="background: var(--gradient-primary); padding: 0.5rem 1rem; border-radius: var(--radius-md); color: white;">📝</span>
                         Fill in the Blank
                     </h3>
-                    <p style="color: var(--accent); font-size: 0.9rem; margin-bottom: 1rem;">Click on a filled blank to change your answer</p>
+                    <p style="color: var(--accent); font-size: 0.875rem; margin-bottom: 1rem;">Click on a filled blank to change your answer</p>
                 `;
                 exam.questions.fillBlank.forEach((q, i) => {
                     questionNum++;
@@ -2381,11 +2574,10 @@
             if (exam.questions.trueFalse && exam.questions.trueFalse.length > 0) {
                 totalQuestions += exam.questions.trueFalse.length;
                 sectionsHtml += `
-                    <h3 style="margin: 2rem 0 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                        <span style="background: var(--success); padding: 0.5rem 1rem; border-radius: 12px;">&#x2713;&#x2717;</span>
+                    <h3 style="margin: 2rem 0 1rem; display: flex; align-items: center; gap: 0.625rem;">
+                        <span style="background: var(--gradient-success); padding: 0.5rem 1rem; border-radius: var(--radius-md); color: white;">✓✗</span>
                         True or False
                     </h3>
-                    <p style="color: var(--accent); font-size: 0.9rem; margin-bottom: 1rem;">Click your selection again to change it</p>
                 `;
                 exam.questions.trueFalse.forEach((q, i) => {
                     questionNum++;
@@ -2412,12 +2604,11 @@
                 const rightWords = exam.questions.matchWords.map((p, i) => ({ word: p.word2, idx: i })).sort(() => Math.random() - 0.5);
                 
                 sectionsHtml += `
-                    <h3 style="margin: 2rem 0 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                        <span style="background: var(--accent); padding: 0.5rem 1rem; border-radius: 12px; color: #1e293b;">&#x1F517;</span>
+                    <h3 style="margin: 2rem 0 1rem; display: flex; align-items: center; gap: 0.625rem;">
+                        <span style="background: var(--gradient-accent); padding: 0.5rem 1rem; border-radius: var(--radius-md); color: #1e293b;">🔗</span>
                         Match the Words
                     </h3>
-                    <p style="color: var(--text-muted); margin-bottom: 0.5rem;">Click a word from each column to match them.</p>
-                    <p style="color: var(--accent); font-size: 0.9rem; margin-bottom: 1rem;">Click a matched pair to unmatch and try again</p>
+                    <p style="color: var(--text-secondary); margin-bottom: 0.5rem; font-size: 0.875rem;">Click a word from each column to match them. Click a matched pair to unmatch.</p>
                     <div class="quiz-question-card">
                         <div class="match-container">
                             <div class="match-column">
@@ -2441,46 +2632,53 @@
                 `;
             }
             
-            // Related Words (Picture Match)
+            // Related Words (Picture Match) - with decoy words support
             if (exam.questions.relatedWords && exam.questions.relatedWords.length > 0) {
                 let allWords = [];
                 exam.questions.relatedWords.forEach((cat, catIdx) => {
                     cat.words.forEach(word => {
-                        allWords.push({ word, catIdx });
+                        allWords.push({ word, catIdx, isDecoy: false });
                     });
                 });
-                totalQuestions += allWords.length;
+                
+                // Add decoy words (they don't belong to any category)
+                const decoyWords = exam.questions.decoyWords || [];
+                decoyWords.forEach(word => {
+                    allWords.push({ word, catIdx: -1, isDecoy: true });
+                });
+                
+                // Only count real words for total (not decoys)
+                totalQuestions += allWords.filter(w => !w.isDecoy).length;
                 allWords = allWords.sort(() => Math.random() - 0.5);
                 
                 sectionsHtml += `
-                    <h3 style="margin: 2rem 0 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                        <span style="background: var(--secondary); padding: 0.5rem 1rem; border-radius: 12px;">&#x1F4C1;</span>
+                    <h3 style="margin: 2rem 0 1rem; display: flex; align-items: center; gap: 0.625rem;">
+                        <span style="background: var(--gradient-secondary); padding: 0.5rem 1rem; border-radius: var(--radius-md); color: white;">📁</span>
                         Category Word Match
                     </h3>
-                    <p style="color: var(--accent); text-align: center; margin-bottom: 1rem;" id="picMatchInstruction">
+                    <p style="color: var(--accent); text-align: center; margin-bottom: 1rem; font-size: 0.9rem;" id="picMatchInstruction">
                         Click a word, then click the category it belongs to
                     </p>
-                    <p style="color: var(--text-muted); text-align: center; font-size: 0.9rem; margin-bottom: 1rem;">
-                        Click placed words to return them to the word bank
-                    </p>
+                    ${decoyWords.length > 0 ? `<p style="color: var(--warning); text-align: center; font-size: 0.8125rem; margin-bottom: 1rem;">
+                        ⚠️ Some words may not belong to any category - leave them in the word bank!
+                    </p>` : ''}
                     <div class="quiz-question-card">
                         <div class="match-container" style="flex-wrap: wrap; justify-content: center;">
                             ${exam.questions.relatedWords.map((cat, catIdx) => `
                                 <div class="match-column" style="min-width: 150px; flex: 1;">
                                     <div class="image-drop-zone" id="picCat-${catIdx}" data-catidx="${catIdx}"
-                                        onclick="selectPicCategory(${catIdx})"
-                                        style="min-height: 120px; padding: 1rem;">
-                                        <h5 style="font-size: 1.1rem; margin-bottom: 0.5rem;">${cat.name}</h5>
+                                        onclick="selectPicCategory(${catIdx})">
+                                        <h5>${cat.name}</h5>
                                         <div class="dropped-words" id="picDropped-${catIdx}"></div>
                                     </div>
                                 </div>
                             `).join('')}
                         </div>
-                        <h4 style="margin: 1.5rem 0 0.75rem; color: var(--text-muted);">Word Bank</h4>
+                        <h4 style="margin: 1.5rem 0 0.75rem; color: var(--text-muted); font-size: 0.8125rem; text-transform: uppercase; letter-spacing: 0.05em;">Word Bank</h4>
                         <div class="word-bank" id="picWordBank">
                             ${allWords.map((w, wi) => `
-                                <span class="word-chip" id="picWord-${wi}" data-wordidx="${wi}" data-catidx="${w.catIdx}"
-                                    onclick="selectPicWord(${wi}, ${w.catIdx})">${w.word}</span>
+                                <span class="word-chip ${w.isDecoy ? 'decoy' : ''}" id="picWord-${wi}" data-wordidx="${wi}" data-catidx="${w.catIdx}" data-isdecoy="${w.isDecoy}"
+                                    onclick="selectPicWord(${wi}, ${w.catIdx}, ${w.isDecoy})">${w.word}</span>
                             `).join('')}
                         </div>
                     </div>
@@ -2489,8 +2687,8 @@
             
             container.innerHTML = `
                 <div style="text-align: center; margin-bottom: 1rem;">
-                    <button class="theme-toggle" onclick="toggleTheme(); updateStudentThemeBtn()" title="Toggle Light/Dark Mode" id="studentThemeBtn">
-                        ${document.body.classList.contains('light-theme') ? '&#x1F319;' : '&#x2600;'}
+                    <button class="btn btn-icon" onclick="toggleTheme(); updateStudentThemeBtn()" title="Toggle Theme" id="studentThemeBtn">
+                        ${document.body.classList.contains('light-theme') ? '🌙' : '☀️'}
                     </button>
                 </div>
                 <div class="student-header">
@@ -2501,37 +2699,36 @@
                 <div class="progress-bar">
                     <div class="progress-fill" id="progressFill" style="width: 0%"></div>
                 </div>
-                <p style="text-align: center; color: var(--text-muted); margin-bottom: 2rem;" id="progressText">
+                <p style="text-align: center; color: var(--text-muted); margin-bottom: 2rem; font-size: 0.9rem;" id="progressText">
                     0 of ${totalQuestions} questions answered
                 </p>
                 
                 ${sectionsHtml}
                 
-                <div style="margin-top: 3rem; padding: 2rem; background: var(--bg-card); border-radius: 20px; text-align: center;">
-                    <p style="margin-bottom: 0.5rem; color: var(--text-muted);">
-                        Review your answers above. You can change them before submitting.
+                <div style="margin-top: 3rem; padding: 2rem; background: var(--bg-card); border-radius: var(--radius-xl); text-align: center; border: 1px solid var(--border);">
+                    <p style="margin-bottom: 0.5rem; color: var(--text-secondary);">
+                        Review your answers above before submitting.
                     </p>
-                    <p style="margin-bottom: 1rem; color: var(--warning); font-weight: 600;">
-                        Warning: You can only submit once!
+                    <p style="margin-bottom: 1.5rem; color: var(--warning); font-weight: 600;">
+                        ⚠️ You can only submit once!
                     </p>
-                    <button class="btn btn-gradient" onclick="confirmSubmitExam()" style="font-size: 1.2rem; padding: 1.25rem 3rem;">
+                    <button class="btn btn-gradient" onclick="confirmSubmitExam()" style="font-size: 1.125rem; padding: 1.25rem 3rem;">
                         Submit Exam
                     </button>
                 </div>
             `;
             
-            // Store total for progress tracking
             window.totalQuestions = totalQuestions;
         }
         
         function updateStudentThemeBtn() {
             const btn = document.getElementById('studentThemeBtn');
             if (btn) {
-                btn.innerHTML = document.body.classList.contains('light-theme') ? '&#x1F319;' : '&#x2600;';
+                btn.textContent = document.body.classList.contains('light-theme') ? '🌙' : '☀️';
             }
         }
         
-        // Clear fill in the blank answer
+        // Clear fill in the blank
         function clearFillBlank(index) {
             if (studentAnswers.fillBlank[index] !== undefined) {
                 const blank = document.getElementById(`blank-fb-${index}`);
@@ -2551,13 +2748,11 @@
             if (type === 'fillBlank') {
                 studentAnswers[type][index] = value;
                 
-                // Update blank
                 const blank = document.getElementById(`blank-fb-${index}`);
                 if (blank) {
                     blank.textContent = value;
                     blank.classList.add('filled');
                 }
-                // Update button styles
                 const card = document.getElementById(`studentQ-fillBlank-${index}`);
                 card.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
                 card.querySelectorAll('.option-btn').forEach(btn => {
@@ -2565,7 +2760,6 @@
                 });
                 card.classList.add('answered');
             } else if (type === 'trueFalse') {
-                // Toggle - if clicking same answer, deselect
                 if (studentAnswers[type][index] === value) {
                     delete studentAnswers[type][index];
                     const trueBtn = document.getElementById(`tf-true-${index}`);
@@ -2595,22 +2789,22 @@
             updateProgress();
         }
         
+        // Match Words Student Logic
         let selectedMatchStudent = null;
-        let matchedPairs = {}; // Track matched pairs: leftIdx -> { leftEl, rightEl, rightIdx, colorIdx }
-        let usedColorIndices = []; // Track which colors are in use
+        let matchedPairs = {};
+        let usedColorIndices = [];
         
-        // Distinct colors for matched pairs
         const matchPairColors = [
-            { bg: '#8b5cf6', border: '#7c3aed' },  // Purple
-            { bg: '#f472b6', border: '#ec4899' },  // Pink
-            { bg: '#22d3ee', border: '#06b6d4' },  // Cyan
-            { bg: '#fbbf24', border: '#f59e0b' },  // Yellow
-            { bg: '#10b981', border: '#059669' },  // Green
-            { bg: '#f97316', border: '#ea580c' },  // Orange
-            { bg: '#ef4444', border: '#dc2626' },  // Red
-            { bg: '#6366f1', border: '#4f46e5' },  // Indigo
-            { bg: '#14b8a6', border: '#0d9488' },  // Teal
-            { bg: '#a855f7', border: '#9333ea' },  // Violet
+            { bg: '#6366f1', border: '#4f46e5' },
+            { bg: '#ec4899', border: '#db2777' },
+            { bg: '#06b6d4', border: '#0891b2' },
+            { bg: '#f59e0b', border: '#d97706' },
+            { bg: '#10b981', border: '#059669' },
+            { bg: '#f97316', border: '#ea580c' },
+            { bg: '#ef4444', border: '#dc2626' },
+            { bg: '#8b5cf6', border: '#7c3aed' },
+            { bg: '#14b8a6', border: '#0d9488' },
+            { bg: '#a855f7', border: '#9333ea' },
         ];
         
         function getNextColorIndex() {
@@ -2619,11 +2813,10 @@
                     return i;
                 }
             }
-            return 0; // Fallback to first color if all used
+            return 0;
         }
         
         function selectMatchStudent(element, idx, side) {
-            // Check if this element is already matched - if so, unmatch it
             if (element.classList.contains('matched')) {
                 unmatchWord(element, idx, side);
                 return;
@@ -2642,13 +2835,11 @@
                 return;
             }
             
-            // Record the match
             const leftIdx = side === 'left' ? idx : selectedMatchStudent.idx;
             const rightIdx = side === 'right' ? idx : selectedMatchStudent.idx;
             const leftEl = side === 'left' ? element : selectedMatchStudent.element;
             const rightEl = side === 'right' ? element : selectedMatchStudent.element;
             
-            // Get a unique color for this pair
             const colorIdx = getNextColorIndex();
             usedColorIndices.push(colorIdx);
             const color = matchPairColors[colorIdx];
@@ -2656,7 +2847,6 @@
             studentAnswers.matchWords[leftIdx] = rightIdx;
             matchedPairs[leftIdx] = { leftEl, rightEl, rightIdx, colorIdx };
             
-            // Visual feedback - mark as matched with unique color (clickable to unmatch)
             leftEl.classList.remove('selected');
             rightEl.classList.remove('selected');
             leftEl.classList.add('matched');
@@ -2674,13 +2864,11 @@
         }
         
         function unmatchWord(element, idx, side) {
-            // Find and remove the match
             let leftIdx = null;
             
             if (side === 'left') {
                 leftIdx = idx;
             } else {
-                // Find which left word this right word is matched to
                 for (const [lIdx, pair] of Object.entries(matchedPairs)) {
                     if (pair.rightIdx === idx) {
                         leftIdx = parseInt(lIdx);
@@ -2691,12 +2879,9 @@
             
             if (leftIdx !== null && matchedPairs[leftIdx]) {
                 const pair = matchedPairs[leftIdx];
-                
-                // Release the color back to the pool
                 const colorIdx = pair.colorIdx;
                 usedColorIndices = usedColorIndices.filter(c => c !== colorIdx);
                 
-                // Reset both elements
                 pair.leftEl.classList.remove('matched', 'selected');
                 pair.rightEl.classList.remove('matched', 'selected');
                 pair.leftEl.style.background = '';
@@ -2706,7 +2891,6 @@
                 pair.rightEl.style.borderColor = '';
                 pair.rightEl.style.color = '';
                 
-                // Remove from answers
                 delete studentAnswers.matchWords[leftIdx];
                 delete matchedPairs[leftIdx];
                 
@@ -2714,18 +2898,17 @@
             }
         }
         
+        // Picture Match Student Logic
         let selectedPicWordStudent = null;
-        let placedPicWords = {}; // Track placed words: wordIdx -> { catIdx, element, originalEl, word, correctCatIdx }
+        let placedPicWords = {};
         
-        function selectPicWord(wordIdx, correctCatIdx) {
-            // Deselect previous
+        function selectPicWord(wordIdx, correctCatIdx, isDecoy) {
             document.querySelectorAll('#picWordBank .word-chip').forEach(chip => chip.classList.remove('selected'));
             
             const wordEl = document.getElementById(`picWord-${wordIdx}`);
             wordEl.classList.add('selected');
-            selectedPicWordStudent = { wordIdx, correctCatIdx, element: wordEl };
+            selectedPicWordStudent = { wordIdx, correctCatIdx, element: wordEl, isDecoy };
             
-            // Highlight categories
             document.querySelectorAll('.image-drop-zone').forEach(zone => zone.classList.add('selectable'));
             
             document.getElementById('picMatchInstruction').textContent = 'Now click the category for this word';
@@ -2736,20 +2919,15 @@
             const placed = placedPicWords[wordIdx];
             if (!placed) return;
             
-            // Remove from category answers
             if (studentAnswers.relatedWords[placed.catIdx]) {
                 studentAnswers.relatedWords[placed.catIdx] = studentAnswers.relatedWords[placed.catIdx].filter(
                     w => w.wordIdx !== wordIdx
                 );
             }
             
-            // Remove the placed element
             placed.element.remove();
-            
-            // Show original word in bank again
             placed.originalEl.style.display = 'inline-block';
             
-            // Remove from tracking
             delete placedPicWords[wordIdx];
             
             document.getElementById('picMatchInstruction').textContent = 'Word returned! Click a word to place it again';
@@ -2768,16 +2946,16 @@
             const wordEl = selectedPicWordStudent.element;
             const dropZone = document.getElementById(`picDropped-${catIdx}`);
             const wordIdx = selectedPicWordStudent.wordIdx;
+            const isDecoy = selectedPicWordStudent.isDecoy;
             
-            // Record answer
             if (!studentAnswers.relatedWords[catIdx]) studentAnswers.relatedWords[catIdx] = [];
             studentAnswers.relatedWords[catIdx].push({
                 wordIdx: wordIdx,
                 word: wordEl.textContent,
-                correctCatIdx: selectedPicWordStudent.correctCatIdx
+                correctCatIdx: selectedPicWordStudent.correctCatIdx,
+                isDecoy: isDecoy
             });
             
-            // Move word to category - make it clickable to return
             const newWord = document.createElement('span');
             newWord.className = 'word-chip placed-word';
             newWord.textContent = wordEl.textContent;
@@ -2786,18 +2964,17 @@
             newWord.onclick = () => returnPicWord(wordIdx);
             dropZone.appendChild(newWord);
             
-            // Track the placed word
             placedPicWords[wordIdx] = {
                 catIdx: catIdx,
                 element: newWord,
                 originalEl: wordEl,
                 word: wordEl.textContent,
-                correctCatIdx: selectedPicWordStudent.correctCatIdx
+                correctCatIdx: selectedPicWordStudent.correctCatIdx,
+                isDecoy: isDecoy
             };
             
             wordEl.style.display = 'none';
             
-            // Reset state
             document.querySelectorAll('.image-drop-zone').forEach(zone => zone.classList.remove('selectable'));
             selectedPicWordStudent = null;
             
@@ -2809,19 +2986,17 @@
         
         function updateProgress() {
             let answered = 0;
-            const exam = currentExamData;
             
-            // Count answered fill in the blank
             answered += Object.keys(studentAnswers.fillBlank).length;
-            
-            // Count answered true/false
             answered += Object.keys(studentAnswers.trueFalse).length;
-            
-            // Count matched words
             answered += Object.keys(studentAnswers.matchWords).length;
             
-            // Count placed picture words
-            answered += Object.keys(placedPicWords).length;
+            // Only count non-decoy placed words
+            for (const [wordIdx, placed] of Object.entries(placedPicWords)) {
+                if (!placed.isDecoy) {
+                    answered++;
+                }
+            }
             
             const total = window.totalQuestions || 1;
             const percent = Math.round((answered / total) * 100);
@@ -2900,30 +3075,32 @@
                 });
             }
             
-            // Grade Picture Match
+            // Grade Picture Match (excluding decoys)
             if (exam.questions.relatedWords) {
+                // Check placed words (excluding decoys for scoring)
                 for (const [wordIdx, placed] of Object.entries(placedPicWords)) {
-                    total++;
-                    const isCorrect = placed.catIdx === placed.correctCatIdx;
-                    if (isCorrect) correct++;
-                    
-                    const placedCatName = exam.questions.relatedWords[placed.catIdx]?.name || '(unknown)';
-                    const correctCatName = exam.questions.relatedWords[placed.correctCatIdx]?.name || '(unknown)';
-                    
-                    details.push({
-                        type: 'Picture Match',
-                        question: placed.word,
-                        studentAnswer: placedCatName,
-                        correctAnswer: correctCatName,
-                        isCorrect
-                    });
+                    if (!placed.isDecoy) {
+                        total++;
+                        const isCorrect = placed.catIdx === placed.correctCatIdx;
+                        if (isCorrect) correct++;
+                        
+                        const placedCatName = exam.questions.relatedWords[placed.catIdx]?.name || '(unknown)';
+                        const correctCatName = exam.questions.relatedWords[placed.correctCatIdx]?.name || '(unknown)';
+                        
+                        details.push({
+                            type: 'Picture Match',
+                            question: placed.word,
+                            studentAnswer: placedCatName,
+                            correctAnswer: correctCatName,
+                            isCorrect
+                        });
+                    }
                 }
                 
-                // Count unplaced words as wrong
+                // Count unplaced non-decoy words as wrong
                 exam.questions.relatedWords.forEach((cat, catIdx) => {
                     cat.words.forEach(word => {
-                        // Check if this word was placed
-                        const wasPlaced = Object.values(placedPicWords).some(p => p.word === word);
+                        const wasPlaced = Object.values(placedPicWords).some(p => p.word === word && !p.isDecoy);
                         if (!wasPlaced) {
                             total++;
                             details.push({
@@ -2940,7 +3117,7 @@
             
             const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
             
-            // Save submission to prevent re-taking
+            // Save submission
             const submissionKey = `${currentExamId}_${studentName.toLowerCase()}`;
             submissionsData[submissionKey] = {
                 name: studentName,
@@ -2959,14 +3136,12 @@
         }
         
         function sendResultsToTelegram(examTitle, name, correct, total, percentage, details) {
-            // Use chat ID from exam data (embedded in URL) or fallback to local setting
             const chatId = currentExamData?.telegramChatId || TELEGRAM_CHAT_ID;
             if (!chatId) {
                 console.log('No Telegram Chat ID configured');
                 return;
             }
             
-            // Grade emoji
             let gradeEmoji = '';
             if (percentage >= 90) gradeEmoji = '🌟 Excellent!';
             else if (percentage >= 70) gradeEmoji = '✅ Good job!';
@@ -3021,15 +3196,15 @@
             if (percentage < 50) { gradeClass = 'error'; gradeText = 'Needs Improvement'; }
             
             container.innerHTML = `
-                <div style="text-align: center; margin-bottom: 2rem;">
-                    <button class="theme-toggle" onclick="toggleTheme(); updateStudentThemeBtn()" title="Toggle Light/Dark Mode" id="studentThemeBtn">
-                        ${document.body.classList.contains('light-theme') ? '&#x1F319;' : '&#x2600;'}
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <button class="btn btn-icon" onclick="toggleTheme(); updateStudentThemeBtn()" title="Toggle Theme" id="studentThemeBtn">
+                        ${document.body.classList.contains('light-theme') ? '🌙' : '☀️'}
                     </button>
                 </div>
                 <div class="success-animation">
-                    <div class="checkmark" style="background: var(--${gradeClass});">&#x2713;</div>
-                    <h2>Exam Submitted!</h2>
-                    <p style="color: var(--text-muted);">${gradeText}</p>
+                    <div class="checkmark" style="background: var(--${gradeClass});">✓</div>
+                    <h2 style="font-size: 1.5rem;">Exam Submitted!</h2>
+                    <p style="color: var(--text-secondary);">${gradeText}</p>
                 </div>
                 
                 <div class="score-display">
@@ -3039,17 +3214,17 @@
                     <p class="score-label">${correct} out of ${total} correct</p>
                 </div>
                 
-                <h3 style="margin: 2rem 0 1rem;">Your Answers:</h3>
+                <h3 style="margin: 2rem 0 1rem; font-size: 1.125rem;">Your Answers:</h3>
                 ${details.map((d, i) => `
                     <div class="quiz-question-card ${d.isCorrect ? 'correct' : 'incorrect'}">
                         <p><strong>${i + 1}. [${d.type}]</strong> ${d.question}</p>
-                        <p>Your answer: <strong>${d.studentAnswer}</strong></p>
-                        ${!d.isCorrect ? `<p style="color: var(--success);">Correct answer: <strong>${d.correctAnswer}</strong></p>` : ''}
+                        <p style="margin-top: 0.5rem;">Your answer: <strong>${d.studentAnswer}</strong></p>
+                        ${!d.isCorrect ? `<p style="color: var(--success); margin-top: 0.25rem;">Correct answer: <strong>${d.correctAnswer}</strong></p>` : ''}
                     </div>
                 `).join('')}
                 
-                <div style="text-align: center; margin-top: 2rem; padding: 2rem; background: var(--bg-card); border-radius: 20px;">
-                    <p style="color: var(--text-muted);">Your results have been sent to your teacher.</p>
+                <div style="text-align: center; margin-top: 2rem; padding: 2rem; background: var(--bg-card); border-radius: var(--radius-xl); border: 1px solid var(--border);">
+                    <p style="color: var(--text-secondary);">Your results have been sent to your teacher.</p>
                     <p style="color: var(--warning); margin-top: 0.5rem;">This exam link is now closed for you.</p>
                 </div>
             `;
@@ -3067,10 +3242,10 @@
             modal.classList.add('active');
             
             const titles = {
-                fillBlank: '&#x1F4DD; Fill in the Blank',
-                relatedWords: '&#x1F5BC; Picture Word Match',
-                matchWords: '&#x1F517; Match the Words',
-                trueFalse: '&#x2713;&#x2717; True or False'
+                fillBlank: '📝 Fill in the Blank',
+                relatedWords: '🖼️ Picture Word Match',
+                matchWords: '🔗 Match the Words',
+                trueFalse: '✓✗ True or False'
             };
             
             document.getElementById('modalTitle').innerHTML = titles[type];
@@ -3103,6 +3278,7 @@
             modal.classList.remove('active');
             modalEl.classList.remove('wide');
             currentView = 'main';
+            renderTeacherHome();
         }
         
         // ==================== FILL IN THE BLANK ====================
@@ -3110,7 +3286,7 @@
             if (quizData.fillBlank.questions.length === 0 && currentView === 'main') {
                 body.innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-state-icon">&#x1F4DD;</div>
+                        <div class="empty-state-icon">📝</div>
                         <h3>No Quiz Created Yet</h3>
                         <p>Create sentences with blanks for students to fill in!</p>
                         <button class="btn btn-primary" onclick="showFillBlankCreate()">
@@ -3296,14 +3472,14 @@
                 blank.classList.remove('wrong-answer');
                 card.classList.add('correct');
                 card.classList.remove('incorrect');
-                feedback.innerHTML = '<div class="feedback correct">Correct! Well done!</div>';
+                feedback.innerHTML = '<div class="feedback correct">✓ Correct! Well done!</div>';
                 createConfetti();
             } else {
                 blank.classList.add('wrong-answer');
                 blank.classList.remove('correct-answer');
                 card.classList.add('incorrect');
                 card.classList.remove('correct');
-                feedback.innerHTML = `<div class="feedback incorrect">Not quite! The correct answer is: ${question.blankWord}</div>`;
+                feedback.innerHTML = `<div class="feedback incorrect">✗ Not quite! The correct answer is: ${question.blankWord}</div>`;
             }
             
             updateScore();
@@ -3343,796 +3519,52 @@
             }
         }
         
-        // ==================== RELATED WORDS (Picture Match) ====================
+        // ==================== RELATED WORDS MODAL (Simplified) ====================
         function renderRelatedWordsModal(body) {
-            if (quizData.relatedWords.categories.length === 0 && currentView === 'main') {
-                body.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">&#x1F5BC;</div>
-                        <h3>No Quiz Created Yet</h3>
-                        <p>Create a picture-word matching quiz with images!</p>
-                        <button class="btn btn-primary" onclick="showRelatedWordsCreate()">
-                            Create Quiz
-                        </button>
-                    </div>
-                `;
-            } else if (currentView === 'main') {
-                body.innerHTML = `
-                    <div class="tabs">
-                        <button class="tab active" onclick="switchRelatedTab('play')">Play Quiz</button>
-                        <button class="tab" onclick="switchRelatedTab('edit')">Edit Quiz</button>
-                    </div>
-                    <div id="relatedTabContent"></div>
-                `;
-                renderRelatedWordsPlay();
-            } else if (currentView === 'create') {
-                renderRelatedWordsCreate(body);
-            }
-        }
-        
-        function showRelatedWordsCreate() {
-            currentView = 'create';
-            renderRelatedWordsCreate(document.getElementById('modalBody'));
-        }
-        
-        function renderRelatedWordsCreate(body) {
-            const categories = quizData.relatedWords.categories;
             body.innerHTML = `
-                <div id="categoriesContainer">
-                    ${categories.map((c, i) => renderCategoryBuilder(c, i)).join('')}
-                </div>
-                <button class="btn btn-secondary" onclick="addCategory()" style="width: 100%; margin-top: 1rem;">
-                    + Add Category
-                </button>
-                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-                    <button class="btn btn-secondary" onclick="currentView='main'; renderQuizModal('relatedWords')">
-                        Back
-                    </button>
-                    <button class="btn btn-success" onclick="saveRelatedWordsQuiz()" style="flex: 1;">
-                        Save Quiz
+                <div class="empty-state">
+                    <div class="empty-state-icon">🖼️</div>
+                    <h3>Picture Word Match</h3>
+                    <p>This quiz type is designed for exams. Create an exam to use Picture Word Match with categories and decoy words!</p>
+                    <button class="btn btn-primary" onclick="closeModal(); openExamBuilder();">
+                        Create Exam
                     </button>
                 </div>
             `;
-            
-            if (categories.length === 0) {
-                addCategory();
-            }
         }
         
-        function renderCategoryBuilder(category = null, index = 0) {
-            const c = category || { name: '', image: '', words: [] };
-            return `
-                <div class="category-builder" id="category-${index}">
-                    <div class="category-builder-header">
-                        <span style="background: var(--primary); padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem;">
-                            Category ${index + 1}
-                        </span>
-                        <button class="remove-question" onclick="removeCategory(${index})" style="position: relative; top: 0; right: 0;">&times;</button>
-                    </div>
-                    <div class="form-group">
-                        <label>Category Name</label>
-                        <input type="text" id="catName-${index}" value="${c.name}" placeholder="e.g., Cat, Dog, Animals">
-                    </div>
-                    <div class="form-group">
-                        <label>Image</label>
-                        <div class="image-upload-zone" onclick="document.getElementById('imgInput-${index}').click()">
-                            <input type="file" id="imgInput-${index}" accept="image/*" onchange="handleImageUpload(${index}, this)">
-                            <div id="imgPreview-${index}">
-                                ${c.image ? `<img src="${c.image}" style="max-width: 150px; border-radius: 12px;">` : 'Click to upload image'}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Words that belong to this category</label>
-                        <div class="tags-input" id="tagsContainer-${index}">
-                            ${c.words.map(w => `
-                                <span class="tag">${w} <button onclick="removeWord(${index}, '${escapeHtml(w)}')">&times;</button></span>
-                            `).join('')}
-                            <input type="text" id="wordInput-${index}" placeholder="Type word and press Enter" 
-                                onkeypress="handleWordInput(event, ${index})">
-                        </div>
-                        <p class="form-hint">Press Enter to add each word</p>
-                    </div>
-                </div>
-            `;
-        }
-        
-        let tempCategoryData = {};
-        
-        function handleImageUpload(index, input) {
-            const file = input.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const preview = document.getElementById(`imgPreview-${index}`);
-                    preview.innerHTML = `<img src="${e.target.result}" style="max-width: 150px; border-radius: 12px;">`;
-                    if (!tempCategoryData[index]) tempCategoryData[index] = {};
-                    tempCategoryData[index].image = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-        
-        function handleWordInput(event, index) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                const input = document.getElementById(`wordInput-${index}`);
-                const word = input.value.trim();
-                if (word) {
-                    if (!tempCategoryData[index]) tempCategoryData[index] = { words: [] };
-                    if (!tempCategoryData[index].words) tempCategoryData[index].words = [];
-                    tempCategoryData[index].words.push(word);
-                    
-                    const container = document.getElementById(`tagsContainer-${index}`);
-                    const tag = document.createElement('span');
-                    tag.className = 'tag';
-                    tag.innerHTML = `${word} <button onclick="removeWord(${index}, '${escapeHtml(word)}')">&times;</button>`;
-                    container.insertBefore(tag, input);
-                    input.value = '';
-                }
-            }
-        }
-        
-        function removeWord(index, word) {
-            if (tempCategoryData[index] && tempCategoryData[index].words) {
-                tempCategoryData[index].words = tempCategoryData[index].words.filter(w => w !== word);
-            }
-            const container = document.getElementById(`tagsContainer-${index}`);
-            const tags = container.querySelectorAll('.tag');
-            tags.forEach(tag => {
-                if (tag.textContent.includes(word)) tag.remove();
-            });
-        }
-        
-        function addCategory() {
-            const container = document.getElementById('categoriesContainer');
-            const index = container.children.length;
-            container.insertAdjacentHTML('beforeend', renderCategoryBuilder(null, index));
-        }
-        
-        function removeCategory(index) {
-            const container = document.getElementById('categoriesContainer');
-            if (container.children.length > 1) {
-                container.children[index].remove();
-                delete tempCategoryData[index];
-            }
-        }
-        
-        function collectCategories() {
-            const container = document.getElementById('categoriesContainer');
-            const categories = [];
-            
-            for (let i = 0; i < container.children.length; i++) {
-                const name = document.getElementById(`catName-${i}`)?.value || '';
-                const image = tempCategoryData[i]?.image || quizData.relatedWords.categories[i]?.image || '';
-                const words = tempCategoryData[i]?.words || quizData.relatedWords.categories[i]?.words || [];
-                
-                const tagsContainer = document.getElementById(`tagsContainer-${i}`);
-                if (tagsContainer) {
-                    const existingTags = tagsContainer.querySelectorAll('.tag');
-                    existingTags.forEach(tag => {
-                        const word = tag.textContent.replace('x', '').trim();
-                        if (word && !words.includes(word)) {
-                            words.push(word);
-                        }
-                    });
-                }
-                
-                if (name && words.length > 0) {
-                    categories.push({ name, image, words: [...new Set(words)] });
-                }
-            }
-            
-            return categories;
-        }
-        
-        function saveRelatedWordsQuiz() {
-            quizData.relatedWords.categories = collectCategories();
-            saveData();
-            tempCategoryData = {};
-            currentView = 'main';
-            renderQuizModal('relatedWords');
-            createConfetti();
-        }
-        
-        function switchRelatedTab(tab) {
-            const tabs = document.querySelectorAll('.tab');
-            tabs.forEach(t => t.classList.remove('active'));
-            
-            if (tab === 'play') {
-                tabs[0].classList.add('active');
-                renderRelatedWordsPlay();
-            } else {
-                tabs[1].classList.add('active');
-                currentView = 'create';
-                tempCategoryData = {};
-                quizData.relatedWords.categories.forEach((c, i) => {
-                    tempCategoryData[i] = { image: c.image, words: [...c.words] };
-                });
-                renderRelatedWordsCreate(document.getElementById('relatedTabContent'));
-            }
-        }
-        
-        // Play Related Words Quiz - Click to Select Mode
-        let selectedWordIdx = null;
-        let allWordsArray = [];
-        let categoriesArray = [];
-        let wordToCategoryMap = {};
-        let droppedWords = {};
-        
-        function renderRelatedWordsPlay() {
-            const content = document.getElementById('relatedTabContent');
-            categoriesArray = quizData.relatedWords.categories;
-            
-            allWordsArray = [];
-            wordToCategoryMap = {};
-            droppedWords = {};
-            selectedWordIdx = null;
-            
-            categoriesArray.forEach((cat, catIdx) => {
-                droppedWords[catIdx] = [];
-                cat.words.forEach(word => {
-                    const wordIdx = allWordsArray.length;
-                    allWordsArray.push(word);
-                    wordToCategoryMap[wordIdx] = catIdx;
-                });
-            });
-            
-            let shuffledIndices = allWordsArray.map((_, i) => i).sort(() => Math.random() - 0.5);
-            
-            content.innerHTML = `
-                <div class="score-display">
-                    <div class="score-circle" id="relatedScoreCircle" style="--score-percent: 0%">
-                        <span class="score-text" id="relatedScoreText">0/${allWordsArray.length}</span>
-                    </div>
-                    <p class="score-label">Words Sorted</p>
-                </div>
-                <p style="text-align: center; color: var(--accent); margin-bottom: 1rem; font-weight: 500;" id="instruction">
-                    Click a word, then click the picture it belongs to
-                </p>
-                <div class="match-container">
-                    ${categoriesArray.map((cat, catIdx) => `
-                        <div class="match-column">
-                            <div class="image-drop-zone" id="drop-${catIdx}" data-category="${catIdx}">
-                                ${cat.image ? `<img src="${cat.image}" alt="${cat.name}">` : ''}
-                                <h5>${cat.name}</h5>
-                                <div class="dropped-words" id="dropped-${catIdx}"></div>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-                <h4 style="margin: 1.5rem 0 0.75rem; color: var(--text-muted);">Click a word to select it</h4>
-                <div class="word-bank" id="wordBank">
-                    ${shuffledIndices.map(wordIdx => `
-                        <span class="word-chip" id="word-${wordIdx}" data-word="${wordIdx}">${allWordsArray[wordIdx]}</span>
-                    `).join('')}
-                </div>
-                <button class="btn btn-primary" onclick="resetRelatedWordsQuiz()" style="width: 100%; margin-top: 1.5rem;">
-                    Reset Quiz
-                </button>
-            `;
-            
-            document.querySelectorAll('#wordBank .word-chip').forEach(chip => {
-                chip.addEventListener('click', function() {
-                    const wordIdx = parseInt(this.dataset.word);
-                    handleWordClick(wordIdx);
-                });
-            });
-            
-            document.querySelectorAll('.image-drop-zone').forEach(zone => {
-                zone.addEventListener('click', function() {
-                    const catIdx = parseInt(this.dataset.category);
-                    handleCategoryClick(catIdx);
-                });
-            });
-        }
-        
-        function handleWordClick(wordIdx) {
-            document.querySelectorAll('#wordBank .word-chip').forEach(c => c.classList.remove('selected'));
-            
-            const chip = document.getElementById(`word-${wordIdx}`);
-            chip.classList.add('selected');
-            selectedWordIdx = wordIdx;
-            
-            document.querySelectorAll('.image-drop-zone').forEach(zone => zone.classList.add('selectable'));
-            document.getElementById('instruction').textContent = 'Now click the category for this word';
-        }
-        
-        function handleCategoryClick(catIdx) {
-            if (selectedWordIdx === null) {
-                document.getElementById('instruction').textContent = 'First, click a word to select it!';
-                document.getElementById('instruction').style.color = 'var(--warning)';
-                return;
-            }
-            
-            const wordChip = document.getElementById(`word-${selectedWordIdx}`);
-            const dropZone = document.getElementById(`dropped-${catIdx}`);
-            const correctCategory = wordToCategoryMap[selectedWordIdx];
-            
-            const newChip = wordChip.cloneNode(true);
-            newChip.classList.remove('selected');
-            
-            if (catIdx === correctCategory) {
-                newChip.classList.add('correct');
-                document.getElementById('instruction').textContent = 'Correct! Keep going!';
-                document.getElementById('instruction').style.color = 'var(--success)';
-                createConfetti();
-            } else {
-                newChip.classList.add('incorrect');
-                document.getElementById('instruction').textContent = `Wrong! "${allWordsArray[selectedWordIdx]}" belongs to "${categoriesArray[correctCategory].name}"`;
-                document.getElementById('instruction').style.color = 'var(--error)';
-            }
-            
-            dropZone.appendChild(newChip);
-            wordChip.style.display = 'none';
-            droppedWords[catIdx].push(selectedWordIdx);
-            
-            document.querySelectorAll('.image-drop-zone').forEach(zone => zone.classList.remove('selectable'));
-            selectedWordIdx = null;
-            
-            updateRelatedScore();
-        }
-        
-        function updateRelatedScore() {
-            let correct = 0;
-            let total = 0;
-            
-            Object.entries(droppedWords).forEach(([catIdx, words]) => {
-                words.forEach(wordIdx => {
-                    total++;
-                    if (wordToCategoryMap[wordIdx] === parseInt(catIdx)) {
-                        correct++;
-                    }
-                });
-            });
-            
-            const percent = allWordsArray.length > 0 ? (correct / allWordsArray.length) * 100 : 0;
-            document.getElementById('relatedScoreText').textContent = `${correct}/${allWordsArray.length}`;
-            document.getElementById('relatedScoreCircle').style.setProperty('--score-percent', `${percent}%`);
-        }
-        
-        function resetRelatedWordsQuiz() {
-            renderRelatedWordsPlay();
-        }
-        
-        // ==================== MATCH WORDS ====================
+        // ==================== MATCH WORDS MODAL (Simplified) ====================
         function renderMatchWordsModal(body) {
-            if (quizData.matchWords.pairs.length === 0 && currentView === 'main') {
-                body.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">&#x1F517;</div>
-                        <h3>No Quiz Created Yet</h3>
-                        <p>Create word pairs for matching - great for translations!</p>
-                        <button class="btn btn-primary" onclick="showMatchWordsCreate()">
-                            Create Quiz
-                        </button>
-                    </div>
-                `;
-            } else if (currentView === 'main') {
-                body.innerHTML = `
-                    <div class="tabs">
-                        <button class="tab active" onclick="switchMatchTab('play')">Play Quiz</button>
-                        <button class="tab" onclick="switchMatchTab('edit')">Edit Quiz</button>
-                    </div>
-                    <div id="matchTabContent"></div>
-                `;
-                renderMatchWordsPlay();
-            } else if (currentView === 'create') {
-                renderMatchWordsCreate(body);
-            }
-        }
-        
-        function showMatchWordsCreate() {
-            currentView = 'create';
-            renderMatchWordsCreate(document.getElementById('modalBody'));
-        }
-        
-        function renderMatchWordsCreate(body) {
-            const pairs = quizData.matchWords.pairs;
             body.innerHTML = `
-                <div id="pairsContainer">
-                    ${pairs.map((p, i) => renderPairBuilder(p, i)).join('')}
-                </div>
-                <button class="btn btn-secondary" onclick="addPair()" style="width: 100%; margin-top: 1rem;">
-                    + Add Word Pair
-                </button>
-                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-                    <button class="btn btn-secondary" onclick="currentView='main'; renderQuizModal('matchWords')">
-                        Back
-                    </button>
-                    <button class="btn btn-success" onclick="saveMatchWordsQuiz()" style="flex: 1;">
-                        Save Quiz
+                <div class="empty-state">
+                    <div class="empty-state-icon">🔗</div>
+                    <h3>Match the Words</h3>
+                    <p>This quiz type is designed for exams. Create an exam to use word matching!</p>
+                    <button class="btn btn-primary" onclick="closeModal(); openExamBuilder();">
+                        Create Exam
                     </button>
                 </div>
             `;
-            
-            if (pairs.length === 0) {
-                addPair();
-            }
         }
         
-        function renderPairBuilder(pair = null, index = 0) {
-            const p = pair || { word1: '', word2: '' };
-            return `
-                <div class="question-builder" id="pair-${index}" style="display: flex; gap: 1rem; align-items: center;">
-                    <span class="question-number">${index + 1}</span>
-                    <input type="text" id="word1-${index}" value="${p.word1}" placeholder="Word 1 (e.g., Apple)" style="flex: 1;">
-                    <span style="font-size: 1.5rem;">&#x2194;</span>
-                    <input type="text" id="word2-${index}" value="${p.word2}" placeholder="Word 2 (e.g., Pomme)" style="flex: 1;">
-                    <button class="remove-question" onclick="removePair(${index})" style="position: relative; top: 0; right: 0;">&times;</button>
-                </div>
-            `;
-        }
-        
-        function addPair() {
-            const container = document.getElementById('pairsContainer');
-            const index = container.children.length;
-            container.insertAdjacentHTML('beforeend', renderPairBuilder(null, index));
-        }
-        
-        function removePair(index) {
-            const container = document.getElementById('pairsContainer');
-            if (container.children.length > 1) {
-                container.children[index].remove();
-            }
-        }
-        
-        function collectPairs() {
-            const container = document.getElementById('pairsContainer');
-            const pairs = [];
-            
-            for (let i = 0; i < container.children.length; i++) {
-                const word1 = document.getElementById(`word1-${i}`)?.value || '';
-                const word2 = document.getElementById(`word2-${i}`)?.value || '';
-                
-                if (word1 && word2) {
-                    pairs.push({ word1, word2 });
-                }
-            }
-            
-            return pairs;
-        }
-        
-        function saveMatchWordsQuiz() {
-            quizData.matchWords.pairs = collectPairs();
-            saveData();
-            currentView = 'main';
-            renderQuizModal('matchWords');
-            createConfetti();
-        }
-        
-        function switchMatchTab(tab) {
-            const tabs = document.querySelectorAll('.tab');
-            tabs.forEach(t => t.classList.remove('active'));
-            
-            if (tab === 'play') {
-                tabs[0].classList.add('active');
-                renderMatchWordsPlay();
-            } else {
-                tabs[1].classList.add('active');
-                currentView = 'create';
-                renderMatchWordsCreate(document.getElementById('matchTabContent'));
-            }
-        }
-        
-        let matchedPairsTeacher = [];
-        let selectedWord = null;
-        
-        function renderMatchWordsPlay() {
-            const content = document.getElementById('matchTabContent');
-            const pairs = quizData.matchWords.pairs;
-            matchedPairsTeacher = [];
-            selectedWord = null;
-            
-            const leftWords = pairs.map((p, i) => ({ word: p.word1, id: i })).sort(() => Math.random() - 0.5);
-            const rightWords = pairs.map((p, i) => ({ word: p.word2, id: i })).sort(() => Math.random() - 0.5);
-            
-            content.innerHTML = `
-                <div class="score-display">
-                    <div class="score-circle" id="matchScoreCircle" style="--score-percent: 0%">
-                        <span class="score-text" id="matchScoreText">0/${pairs.length}</span>
-                    </div>
-                    <p class="score-label">Pairs Matched</p>
-                </div>
-                <p style="text-align: center; color: var(--accent); margin-bottom: 1rem;">Click one word, then click its match!</p>
-                <div class="match-container">
-                    <div class="match-column">
-                        <h4>Column A</h4>
-                        ${leftWords.map(w => `
-                            <button class="option-btn" style="width: 100%; margin-bottom: 0.5rem;"
-                                id="left-${w.id}" data-id="${w.id}" data-side="left"
-                                onclick="selectMatchWord(this, ${w.id}, 'left')">${w.word}</button>
-                        `).join('')}
-                    </div>
-                    <div class="match-column">
-                        <h4>Column B</h4>
-                        ${rightWords.map(w => `
-                            <button class="option-btn" style="width: 100%; margin-bottom: 0.5rem;"
-                                id="right-${w.id}" data-id="${w.id}" data-side="right"
-                                onclick="selectMatchWord(this, ${w.id}, 'right')">${w.word}</button>
-                        `).join('')}
-                    </div>
-                </div>
-                <div id="matchFeedback" style="margin-top: 1rem;"></div>
-                <button class="btn btn-primary" onclick="resetMatchWordsQuiz()" style="width: 100%; margin-top: 1rem;">
-                    Reset Quiz
-                </button>
-            `;
-        }
-        
-        function selectMatchWord(element, id, side) {
-            if (element.disabled) return;
-            
-            if (!selectedWord) {
-                selectedWord = { element, id, side };
-                element.classList.add('selected');
-                return;
-            }
-            
-            if (selectedWord.side === side) {
-                selectedWord.element.classList.remove('selected');
-                selectedWord = { element, id, side };
-                element.classList.add('selected');
-                return;
-            }
-            
-            const isMatch = selectedWord.id === id;
-            
-            if (isMatch) {
-                selectedWord.element.classList.add('selected');
-                selectedWord.element.disabled = true;
-                element.classList.add('selected');
-                element.disabled = true;
-                
-                selectedWord.element.style.background = 'var(--success)';
-                selectedWord.element.style.borderColor = 'var(--success)';
-                element.style.background = 'var(--success)';
-                element.style.borderColor = 'var(--success)';
-                
-                matchedPairsTeacher.push(id);
-                createConfetti();
-                
-                const total = quizData.matchWords.pairs.length;
-                const percent = (matchedPairsTeacher.length / total) * 100;
-                document.getElementById('matchScoreText').textContent = `${matchedPairsTeacher.length}/${total}`;
-                document.getElementById('matchScoreCircle').style.setProperty('--score-percent', `${percent}%`);
-                
-                document.getElementById('matchFeedback').innerHTML = '<div class="feedback correct">Great match!</div>';
-            } else {
-                document.getElementById('matchFeedback').innerHTML = '<div class="feedback incorrect">Try again!</div>';
-                element.style.animation = 'shake 0.5s ease';
-                selectedWord.element.style.animation = 'shake 0.5s ease';
-                setTimeout(() => {
-                    element.style.animation = '';
-                    selectedWord.element.style.animation = '';
-                }, 500);
-            }
-            
-            selectedWord.element.classList.remove('selected');
-            selectedWord = null;
-        }
-        
-        function resetMatchWordsQuiz() {
-            renderMatchWordsPlay();
-        }
-        
-        // ==================== TRUE/FALSE ====================
+        // ==================== TRUE/FALSE MODAL (Simplified) ====================
         function renderTrueFalseModal(body) {
-            if (quizData.trueFalse.questions.length === 0 && currentView === 'main') {
-                body.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">&#x2713;&#x2717;</div>
-                        <h3>No Quiz Created Yet</h3>
-                        <p>Create true/false statements for your students!</p>
-                        <button class="btn btn-primary" onclick="showTrueFalseCreate()">
-                            Create Quiz
-                        </button>
-                    </div>
-                `;
-            } else if (currentView === 'main') {
-                body.innerHTML = `
-                    <div class="tabs">
-                        <button class="tab active" onclick="switchTFTab('play')">Play Quiz</button>
-                        <button class="tab" onclick="switchTFTab('edit')">Edit Quiz</button>
-                    </div>
-                    <div id="tfTabContent"></div>
-                `;
-                renderTrueFalsePlay();
-            } else if (currentView === 'create') {
-                renderTrueFalseCreate(body);
-            }
-        }
-        
-        function showTrueFalseCreate() {
-            currentView = 'create';
-            renderTrueFalseCreate(document.getElementById('modalBody'));
-        }
-        
-        function renderTrueFalseCreate(body) {
-            const questions = quizData.trueFalse.questions;
             body.innerHTML = `
-                <div id="tfQuestionsContainer">
-                    ${questions.map((q, i) => renderTFQuestion(q, i)).join('')}
-                </div>
-                <button class="btn btn-secondary" onclick="addTFQuestion()" style="width: 100%; margin-top: 1rem;">
-                    + Add Question
-                </button>
-                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-                    <button class="btn btn-secondary" onclick="currentView='main'; renderQuizModal('trueFalse')">
-                        Back
-                    </button>
-                    <button class="btn btn-success" onclick="saveTrueFalseQuiz()" style="flex: 1;">
-                        Save Quiz
+                <div class="empty-state">
+                    <div class="empty-state-icon">✓✗</div>
+                    <h3>True or False</h3>
+                    <p>This quiz type is designed for exams. Create an exam to use True/False questions!</p>
+                    <button class="btn btn-primary" onclick="closeModal(); openExamBuilder();">
+                        Create Exam
                     </button>
                 </div>
             `;
-            
-            if (questions.length === 0) {
-                addTFQuestion();
-            }
-        }
-        
-        function renderTFQuestion(question = null, index = 0) {
-            const q = question || { statement: '', isTrue: true };
-            return `
-                <div class="question-builder" id="tf-${index}">
-                    <span class="question-number">Q${index + 1}</span>
-                    <button class="remove-question" onclick="removeTFQuestion(${index})">&times;</button>
-                    <div class="form-group">
-                        <label>Statement</label>
-                        <textarea id="tfStatement-${index}" placeholder="Enter a statement...">${q.statement}</textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Correct Answer</label>
-                        <div style="display: flex; gap: 1rem;">
-                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                <input type="radio" name="tfAnswer-${index}" value="true" ${q.isTrue ? 'checked' : ''}>
-                                <span style="color: var(--success);">True</span>
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                <input type="radio" name="tfAnswer-${index}" value="false" ${!q.isTrue ? 'checked' : ''}>
-                                <span style="color: var(--error);">False</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-        
-        function addTFQuestion() {
-            const container = document.getElementById('tfQuestionsContainer');
-            const index = container.children.length;
-            container.insertAdjacentHTML('beforeend', renderTFQuestion(null, index));
-        }
-        
-        function removeTFQuestion(index) {
-            const container = document.getElementById('tfQuestionsContainer');
-            if (container.children.length > 1) {
-                container.children[index].remove();
-            }
-        }
-        
-        function collectTFQuestions() {
-            const container = document.getElementById('tfQuestionsContainer');
-            const questions = [];
-            
-            for (let i = 0; i < container.children.length; i++) {
-                const statement = document.getElementById(`tfStatement-${i}`)?.value || '';
-                const answerRadio = document.querySelector(`input[name="tfAnswer-${i}"]:checked`);
-                const isTrue = answerRadio ? answerRadio.value === 'true' : true;
-                
-                if (statement) {
-                    questions.push({ statement, isTrue });
-                }
-            }
-            
-            return questions;
-        }
-        
-        function saveTrueFalseQuiz() {
-            quizData.trueFalse.questions = collectTFQuestions();
-            saveData();
-            currentView = 'main';
-            renderQuizModal('trueFalse');
-            createConfetti();
-        }
-        
-        function switchTFTab(tab) {
-            const tabs = document.querySelectorAll('.tab');
-            tabs.forEach(t => t.classList.remove('active'));
-            
-            if (tab === 'play') {
-                tabs[0].classList.add('active');
-                renderTrueFalsePlay();
-            } else {
-                tabs[1].classList.add('active');
-                currentView = 'create';
-                renderTrueFalseCreate(document.getElementById('tfTabContent'));
-            }
-        }
-        
-        let tfAnswers = {};
-        
-        function renderTrueFalsePlay() {
-            const content = document.getElementById('tfTabContent');
-            const questions = quizData.trueFalse.questions;
-            tfAnswers = {};
-            
-            content.innerHTML = `
-                <div class="score-display">
-                    <div class="score-circle" id="tfScoreCircle" style="--score-percent: 0%">
-                        <span class="score-text" id="tfScoreText">0/${questions.length}</span>
-                    </div>
-                    <p class="score-label">Questions Answered</p>
-                </div>
-                <div id="tfPlayContainer">
-                    ${questions.map((q, i) => `
-                        <div class="quiz-question-card" id="tfCard-${i}">
-                            <p class="question-text">${q.statement}</p>
-                            <div class="tf-buttons">
-                                <button class="tf-btn true" id="tfTrue-${i}" onclick="answerTF(${i}, true)">
-                                    TRUE
-                                </button>
-                                <button class="tf-btn false" id="tfFalse-${i}" onclick="answerTF(${i}, false)">
-                                    FALSE
-                                </button>
-                            </div>
-                            <div id="tfFeedback-${i}"></div>
-                        </div>
-                    `).join('')}
-                </div>
-                <button class="btn btn-primary" onclick="resetTFQuiz()" style="width: 100%; margin-top: 1.5rem;">
-                    Reset Quiz
-                </button>
-            `;
-        }
-        
-        function answerTF(index, answer) {
-            const question = quizData.trueFalse.questions[index];
-            const isCorrect = question.isTrue === answer;
-            
-            const trueBtn = document.getElementById(`tfTrue-${index}`);
-            const falseBtn = document.getElementById(`tfFalse-${index}`);
-            const card = document.getElementById(`tfCard-${index}`);
-            const feedback = document.getElementById(`tfFeedback-${index}`);
-            
-            tfAnswers[index] = isCorrect;
-            
-            trueBtn.disabled = true;
-            falseBtn.disabled = true;
-            
-            if (answer) {
-                trueBtn.classList.add('selected');
-            } else {
-                falseBtn.classList.add('selected');
-            }
-            
-            if (isCorrect) {
-                card.classList.add('correct');
-                feedback.innerHTML = '<div class="feedback correct">Correct!</div>';
-                createConfetti();
-            } else {
-                card.classList.add('incorrect');
-                const correctAnswer = question.isTrue ? 'TRUE' : 'FALSE';
-                feedback.innerHTML = `<div class="feedback incorrect">The correct answer is: ${correctAnswer}</div>`;
-            }
-            
-            const total = quizData.trueFalse.questions.length;
-            const correct = Object.values(tfAnswers).filter(v => v).length;
-            const percent = (correct / total) * 100;
-            
-            document.getElementById('tfScoreText').textContent = `${correct}/${total}`;
-            document.getElementById('tfScoreCircle').style.setProperty('--score-percent', `${percent}%`);
-        }
-        
-        function resetTFQuiz() {
-            renderTrueFalsePlay();
         }
         
         // ==================== EFFECTS ====================
         function createConfetti() {
             const container = document.getElementById('confetti');
-            const colors = ['#8b5cf6', '#f472b6', '#22d3ee', '#10b981', '#fbbf24'];
+            const colors = ['#6366f1', '#ec4899', '#06b6d4', '#10b981', '#f59e0b', '#8b5cf6'];
             
             for (let i = 0; i < 50; i++) {
                 const confetti = document.createElement('div');
@@ -4141,43 +3573,17 @@
                 confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
                 confetti.style.animationDelay = Math.random() * 0.5 + 's';
                 confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
                 container.appendChild(confetti);
                 
                 setTimeout(() => confetti.remove(), 3000);
             }
         }
         
-        function createParticles() {
-            const container = document.getElementById('particles');
-            const colors = ['#8b5cf6', '#f472b6', '#22d3ee', '#fbbf24'];
-            
-            for (let i = 0; i < 15; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
-                particle.style.animationDelay = Math.random() * 15 + 's';
-                particle.style.animationDuration = (Math.random() * 10 + 15) + 's';
-                container.appendChild(particle);
-            }
-        }
-        
-        // Add shake animation
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes shake {
-                0%, 100% { transform: translateX(0); }
-                25% { transform: translateX(-10px); }
-                75% { transform: translateX(10px); }
-            }
-        `;
-        document.head.appendChild(style);
-        
         // ==================== INITIALIZATION ====================
         document.addEventListener('DOMContentLoaded', () => {
             loadData();
             loadTheme();
-            createParticles();
             
             if (!checkStudentMode()) {
                 renderTeacherHome();
@@ -4200,5 +3606,3 @@
     </script>
 </body>
 </html>
-
-
