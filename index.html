@@ -1645,6 +1645,19 @@
                 minified.q.d = exam.questions.decoyWords;
             }
             
+            // Minify sentenceArrange questions
+            if (exam.questions.sentenceArrange && exam.questions.sentenceArrange.length > 0) {
+                minified.q.s = exam.questions.sentenceArrange.map(q => q.sentence);
+            }
+            
+            // Minify listeningQuiz questions
+            if (exam.questions.listeningQuiz && exam.questions.listeningQuiz.length > 0) {
+                minified.q.l = exam.questions.listeningQuiz.map(q => ({
+                    w: q.correctWord,
+                    o: q.wrongOptions.filter(o => o)
+                }));
+            }
+            
             return minified;
         }
         
@@ -1659,6 +1672,8 @@
                     trueFalse: [],
                     matchWords: [],
                     relatedWords: [],
+                    sentenceArrange: [],
+                    listeningQuiz: [],
                     decoyWords: []
                 }
             };
@@ -1694,6 +1709,17 @@
             
             if (minified.q.d) {
                 expanded.questions.decoyWords = minified.q.d;
+            }
+            
+            if (minified.q.s) {
+                expanded.questions.sentenceArrange = minified.q.s.map(s => ({ sentence: s }));
+            }
+            
+            if (minified.q.l) {
+                expanded.questions.listeningQuiz = minified.q.l.map(q => ({
+                    correctWord: q.w,
+                    wrongOptions: q.o
+                }));
             }
             
             return expanded;
@@ -1992,7 +2018,9 @@
                     fillBlank: [],
                     trueFalse: [],
                     matchWords: [],
-                    relatedWords: []
+                    relatedWords: [],
+                    sentenceArrange: [],
+                    listeningQuiz: []
                 },
                 decoyWords: []
             };
@@ -2025,6 +2053,16 @@
                         <input type="checkbox" value="relatedWords" onchange="toggleExamType('relatedWords')">
                         <div class="icon">🖼️</div>
                         <div class="name">Picture Match</div>
+                    </label>
+                    <label class="exam-type-option" id="opt-sentenceArrange">
+                        <input type="checkbox" value="sentenceArrange" onchange="toggleExamType('sentenceArrange')">
+                        <div class="icon">🔀</div>
+                        <div class="name">Arrange Sentence</div>
+                    </label>
+                    <label class="exam-type-option" id="opt-listeningQuiz">
+                        <input type="checkbox" value="listeningQuiz" onchange="toggleExamType('listeningQuiz')">
+                        <div class="icon">🎧</div>
+                        <div class="name">Listening Quiz</div>
                     </label>
                 </div>
                 
@@ -2161,6 +2199,46 @@
                 `;
             }
             
+            if (examBuilder.selectedTypes.includes('sentenceArrange')) {
+                sectionsHtml += `
+                    <div style="margin-bottom: 2rem;">
+                        <h3 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%); padding: 0.375rem 0.875rem; border-radius: var(--radius-full); color: white; font-size: 0.875rem;">🔀</span>
+                            Arrange Sentence Questions
+                        </h3>
+                        <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1rem;">
+                            Enter sentences and students will rearrange the shuffled words in correct order.
+                        </p>
+                        <div id="sentenceArrangeContainer">
+                            ${(examBuilder.questions.sentenceArrange || []).map((q, i) => renderExamSentenceArrangeQ(q, i)).join('')}
+                        </div>
+                        <button class="btn btn-secondary" onclick="addExamSentenceArrangeQ()" style="width: 100%; margin-top: 0.5rem;">
+                            + Add Sentence
+                        </button>
+                    </div>
+                `;
+            }
+            
+            if (examBuilder.selectedTypes.includes('listeningQuiz')) {
+                sectionsHtml += `
+                    <div style="margin-bottom: 2rem;">
+                        <h3 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%); padding: 0.375rem 0.875rem; border-radius: var(--radius-full); color: white; font-size: 0.875rem;">🎧</span>
+                            Listening Quiz Questions
+                        </h3>
+                        <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1rem;">
+                            Students will hear a word spoken aloud and must choose the correct word from options.
+                        </p>
+                        <div id="listeningQuizContainer">
+                            ${(examBuilder.questions.listeningQuiz || []).map((q, i) => renderExamListeningQ(q, i)).join('')}
+                        </div>
+                        <button class="btn btn-secondary" onclick="addExamListeningQ()" style="width: 100%; margin-top: 0.5rem;">
+                            + Add Listening Question
+                        </button>
+                    </div>
+                `;
+            }
+            
             body.innerHTML = `
                 <h3 style="margin-bottom: 1.5rem; font-size: 1.125rem;">Add Questions for: <span style="color: var(--primary);">${examBuilder.title}</span></h3>
                 ${sectionsHtml}
@@ -2181,6 +2259,12 @@
             }
             if (examBuilder.selectedTypes.includes('matchWords') && examBuilder.questions.matchWords.length === 0) {
                 addExamMatchQ();
+            }
+            if (examBuilder.selectedTypes.includes('sentenceArrange') && (!examBuilder.questions.sentenceArrange || examBuilder.questions.sentenceArrange.length === 0)) {
+                addExamSentenceArrangeQ();
+            }
+            if (examBuilder.selectedTypes.includes('listeningQuiz') && (!examBuilder.questions.listeningQuiz || examBuilder.questions.listeningQuiz.length === 0)) {
+                addExamListeningQ();
             }
             if (examBuilder.selectedTypes.includes('relatedWords') && examBuilder.questions.relatedWords.length === 0) {
                 addExamCategoryQ();
@@ -2383,12 +2467,102 @@
             container.insertAdjacentHTML('beforeend', renderExamCategoryQ(null, index));
         }
         
+        // Sentence Arrange Quiz Builder
+        function renderExamSentenceArrangeQ(q = null, index = 0) {
+            const question = q || { sentence: '' };
+            return `
+                <div class="question-builder" id="examSA-${index}">
+                    <span class="question-number">Q${index + 1}</span>
+                    <button class="remove-question" onclick="removeExamQ('sentenceArrange', ${index})">&times;</button>
+                    <div class="form-group">
+                        <label>Sentence (in correct order)</label>
+                        <textarea id="examSASentence-${index}" placeholder="Enter the complete sentence in correct word order. Words will be shuffled for students.">${question.sentence}</textarea>
+                    </div>
+                    <p class="form-hint">Example: "كان اليوم جميلا جدا" - Words will be shuffled for students to rearrange</p>
+                </div>
+            `;
+        }
+        
+        function addExamSentenceArrangeQ() {
+            const container = document.getElementById('sentenceArrangeContainer');
+            const index = container.children.length;
+            if (!examBuilder.questions.sentenceArrange) examBuilder.questions.sentenceArrange = [];
+            examBuilder.questions.sentenceArrange.push({ sentence: '' });
+            container.insertAdjacentHTML('beforeend', renderExamSentenceArrangeQ(null, index));
+        }
+        
+        // Listening Quiz Builder
+        function renderExamListeningQ(q = null, index = 0) {
+            const question = q || { correctWord: '', wrongOptions: ['', ''] };
+            return `
+                <div class="question-builder" id="examLQ-${index}">
+                    <span class="question-number">Q${index + 1}</span>
+                    <button class="remove-question" onclick="removeExamQ('listeningQuiz', ${index})">&times;</button>
+                    <div class="form-group">
+                        <label>Correct Word (will be spoken aloud)</label>
+                        <input type="text" id="examLQWord-${index}" value="${question.correctWord}" placeholder="Enter the word students need to identify">
+                    </div>
+                    <div class="form-group">
+                        <label>Wrong Options (2-3 similar sounding or looking words)</label>
+                        <div class="options-container">
+                            <input type="text" id="examLQOpt-${index}-0" value="${question.wrongOptions[0] || ''}" placeholder="Wrong option 1">
+                            <input type="text" id="examLQOpt-${index}-1" value="${question.wrongOptions[1] || ''}" placeholder="Wrong option 2">
+                            <input type="text" id="examLQOpt-${index}-2" value="${question.wrongOptions[2] || ''}" placeholder="Wrong option 3 (optional)">
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-secondary" onclick="testSpeech('${index}')" style="margin-top: 0.5rem;">
+                        🔊 Test Speech
+                    </button>
+                    <p class="form-hint">Uses browser text-to-speech. Works best with Arabic words.</p>
+                </div>
+            `;
+        }
+        
+        function addExamListeningQ() {
+            const container = document.getElementById('listeningQuizContainer');
+            const index = container.children.length;
+            if (!examBuilder.questions.listeningQuiz) examBuilder.questions.listeningQuiz = [];
+            examBuilder.questions.listeningQuiz.push({ correctWord: '', wrongOptions: ['', ''] });
+            container.insertAdjacentHTML('beforeend', renderExamListeningQ(null, index));
+        }
+        
+        function testSpeech(index) {
+            const word = document.getElementById(`examLQWord-${index}`)?.value || '';
+            if (!word) {
+                alert('Please enter a word first');
+                return;
+            }
+            speakWord(word);
+        }
+        
+        function speakWord(word) {
+            if ('speechSynthesis' in window) {
+                speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(word);
+                // Try to use Arabic voice
+                const voices = speechSynthesis.getVoices();
+                const arabicVoice = voices.find(v => v.lang.startsWith('ar')) || voices[0];
+                if (arabicVoice) utterance.voice = arabicVoice;
+                utterance.rate = 0.8;
+                speechSynthesis.speak(utterance);
+            } else {
+                alert('Text-to-speech is not supported in your browser');
+            }
+        }
+        
+        // Load voices when available
+        if ('speechSynthesis' in window) {
+            speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+        }
+        
         function removeExamQ(type, index) {
             const containerIds = {
                 fillBlank: 'fillBlankContainer',
                 trueFalse: 'trueFalseContainer',
                 matchWords: 'matchWordsContainer',
-                relatedWords: 'relatedWordsContainer'
+                relatedWords: 'relatedWordsContainer',
+                sentenceArrange: 'sentenceArrangeContainer',
+                listeningQuiz: 'listeningQuizContainer'
             };
             const container = document.getElementById(containerIds[type]);
             if (container && container.children.length > 1) {
@@ -2406,6 +2580,8 @@
                 trueFalse: [],
                 matchWords: [],
                 relatedWords: [],
+                sentenceArrange: [],
+                listeningQuiz: [],
                 decoyWords: examTempDecoyWords || []
             };
             
@@ -2459,6 +2635,31 @@
                     
                     if (name && words.length > 0) {
                         questions.relatedWords.push({ name, words });
+                    }
+                }
+            }
+            
+            // Sentence Arrange
+            if (examBuilder.selectedTypes.includes('sentenceArrange')) {
+                const container = document.getElementById('sentenceArrangeContainer');
+                for (let i = 0; i < container.children.length; i++) {
+                    const sentence = document.getElementById(`examSASentence-${i}`)?.value || '';
+                    
+                    if (sentence.trim()) {
+                        questions.sentenceArrange.push({ sentence: sentence.trim() });
+                    }
+                }
+            }
+            
+            // Listening Quiz
+            if (examBuilder.selectedTypes.includes('listeningQuiz')) {
+                const container = document.getElementById('listeningQuizContainer');
+                for (let i = 0; i < container.children.length; i++) {
+                    const correctWord = document.getElementById(`examLQWord-${i}`)?.value || '';
+                    const wrongOptions = [0, 1, 2].map(j => document.getElementById(`examLQOpt-${i}-${j}`)?.value || '').filter(o => o);
+                    
+                    if (correctWord) {
+                        questions.listeningQuiz.push({ correctWord, wrongOptions });
                     }
                 }
             }
@@ -2543,19 +2744,7 @@
                     <p style="color: var(--text-secondary); margin-bottom: 1rem;">
                         ${wasShortened ? '🎉 Short link generated! Easy to share!' : 'Share this compact link with your students'}
                     </p>
-                    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 0.5rem;">
-                        ${wasShortened ? `
-                            <span style="background: rgba(16, 185, 129, 0.15); color: var(--success); padding: 0.375rem 0.75rem; border-radius: var(--radius-full); font-size: 0.8125rem; font-weight: 600;">
-                                ✨ Short URL!
-                            </span>
-                        ` : ''}
-                        <span style="background: rgba(6, 182, 212, 0.15); color: var(--accent); padding: 0.375rem 0.75rem; border-radius: var(--radius-full); font-size: 0.8125rem; font-weight: 600;">
-                            ${finalSize} chars
-                        </span>
-                        <span style="background: rgba(99, 102, 241, 0.15); color: var(--primary); padding: 0.375rem 0.75rem; border-radius: var(--radius-full); font-size: 0.8125rem; font-weight: 600;">
-                            ${savings}% smaller than raw data
-                        </span>
-                    </div>
+
                 </div>
                 
                 <div class="link-display" style="${wasShortened ? 'border-color: var(--success);' : ''}">
@@ -2795,7 +2984,9 @@
                 fillBlank: {},
                 trueFalse: {},
                 matchWords: {},
-                relatedWords: {}
+                relatedWords: {},
+                sentenceArrange: {},
+                listeningQuiz: {}
             };
             renderStudentQuestions(currentExamData);
         }
@@ -2968,6 +3159,77 @@
                         </div>
                     </div>
                 `;
+            }
+            
+            // Sentence Arrange Quiz
+            if (exam.questions.sentenceArrange && exam.questions.sentenceArrange.length > 0) {
+                totalQuestions += exam.questions.sentenceArrange.length;
+                sectionsHtml += `
+                    <h3 style="margin: 2rem 0 1rem; display: flex; align-items: center; gap: 0.625rem;">
+                        <span style="background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%); padding: 0.5rem 1rem; border-radius: var(--radius-md); color: white;">🔀</span>
+                        Arrange the Sentence
+                    </h3>
+                    <p style="color: var(--accent); font-size: 0.875rem; margin-bottom: 1rem;">Click words in the correct order to form the sentence. Click a placed word to remove it.</p>
+                `;
+                exam.questions.sentenceArrange.forEach((q, i) => {
+                    questionNum++;
+                    const words = q.sentence.split(/\s+/).filter(w => w);
+                    // Shuffle words
+                    const shuffled = [...words];
+                    for (let j = shuffled.length - 1; j > 0; j--) {
+                        const k = Math.floor(Math.random() * (j + 1));
+                        [shuffled[j], shuffled[k]] = [shuffled[k], shuffled[j]];
+                    }
+                    sectionsHtml += `
+                        <div class="quiz-question-card" id="studentQ-sentenceArrange-${i}" data-correct="${words.join(' ')}">
+                            <p class="question-text"><strong>Q${questionNum}.</strong> Arrange the words to form a correct sentence:</p>
+                            <div class="word-bank" id="saDropZone-${i}" style="min-height: 50px; margin-bottom: 1rem; border: 2px dashed var(--border); border-radius: var(--radius-md); padding: 0.75rem;">
+                                <span style="color: var(--text-muted); font-size: 0.875rem;" id="saPlaceholder-${i}">Your sentence will appear here...</span>
+                            </div>
+                            <div class="word-bank" id="saWordBank-${i}">
+                                ${shuffled.map((word, wi) => `
+                                    <span class="word-chip" id="saWord-${i}-${wi}" data-word="${word}" data-qidx="${i}"
+                                        onclick="selectSentenceWord(${i}, ${wi}, '${word.replace(/'/g, "\\'")}')">${word}</span>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            
+            // Listening Quiz
+            if (exam.questions.listeningQuiz && exam.questions.listeningQuiz.length > 0) {
+                totalQuestions += exam.questions.listeningQuiz.length;
+                sectionsHtml += `
+                    <h3 style="margin: 2rem 0 1rem; display: flex; align-items: center; gap: 0.625rem;">
+                        <span style="background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%); padding: 0.5rem 1rem; border-radius: var(--radius-md); color: white;">🎧</span>
+                        Listening Quiz
+                    </h3>
+                    <p style="color: var(--accent); font-size: 0.875rem; margin-bottom: 1rem;">Listen to the word and select the correct answer</p>
+                `;
+                exam.questions.listeningQuiz.forEach((q, i) => {
+                    questionNum++;
+                    const options = [q.correctWord, ...q.wrongOptions];
+                    // Shuffle options
+                    for (let j = options.length - 1; j > 0; j--) {
+                        const k = Math.floor(Math.random() * (j + 1));
+                        [options[j], options[k]] = [options[k], options[j]];
+                    }
+                    sectionsHtml += `
+                        <div class="quiz-question-card" id="studentQ-listeningQuiz-${i}">
+                            <p class="question-text"><strong>Q${questionNum}.</strong> Listen to the word and select the correct answer:</p>
+                            <button class="btn btn-primary" onclick="playListeningWord(${i}, '${q.correctWord.replace(/'/g, "\\'")}')" style="margin: 1rem 0;">
+                                🔊 Play Sound
+                            </button>
+                            <div class="options-grid" id="lqOpts-${i}">
+                                ${options.map((opt, oi) => `
+                                    <button class="option-btn" onclick="selectListeningAnswer(${i}, '${opt.replace(/'/g, "\\'")}', '${q.correctWord.replace(/'/g, "\\'")}')" 
+                                        id="lqOpt-${i}-${oi}">${opt}</button>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                });
             }
             
             container.innerHTML = `
