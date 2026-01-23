@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arabic by Rolla</title>
-    <meta name="description" content="Engaging Arabic language quizzes.">
+    <meta name="description" content="Engaging Arabic quizes">
     
     <!-- LZ-String for URL compression -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
@@ -3025,6 +3025,28 @@
             });
         }
         
+        // Generate a unique exam identifier based on exam content
+        function getExamUniqueId(exam) {
+            // Create a unique ID from exam title and question count to differentiate exams
+            const title = exam.title || 'Untitled';
+            const questionCount = (exam.questions.fillBlank?.length || 0) + 
+                                  (exam.questions.trueFalse?.length || 0) + 
+                                  (exam.questions.matchWords?.length || 0) +
+                                  (exam.questions.sentenceArrange?.length || 0) +
+                                  (exam.questions.listeningQuiz?.length || 0);
+            // Create a simple hash from title + first question of each type
+            const firstFill = exam.questions.fillBlank?.[0]?.sentence || '';
+            const firstTF = exam.questions.trueFalse?.[0]?.statement || '';
+            const contentKey = `${title}_${questionCount}_${firstFill.slice(0,20)}_${firstTF.slice(0,20)}`;
+            // Simple hash function
+            let hash = 0;
+            for (let i = 0; i < contentKey.length; i++) {
+                hash = ((hash << 5) - hash) + contentKey.charCodeAt(i);
+                hash = hash & hash;
+            }
+            return `exam_${Math.abs(hash)}`;
+        }
+        
         function startExam() {
             const name = document.getElementById('studentNameInput').value.trim();
             if (!name) {
@@ -3032,8 +3054,9 @@
                 return;
             }
             
-            // Check if this student already submitted
-            const submissionKey = `${currentExamId}_${name.toLowerCase()}`;
+            // Check if this student already submitted THIS SPECIFIC exam
+            const examUniqueId = getExamUniqueId(currentExamData);
+            const submissionKey = `${examUniqueId}_${name.toLowerCase()}`;
             if (submissionsData[submissionKey]) {
                 const prev = submissionsData[submissionKey];
                 alert(`You have already submitted this exam!\n\nYour previous score: ${prev.score}/${prev.total} (${prev.percentage}%)`);
@@ -3932,8 +3955,9 @@
             
             const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
             
-            // Save submission
-            const submissionKey = `${currentExamId}_${studentName.toLowerCase()}`;
+            // Save submission using unique exam identifier
+            const examUniqueId = getExamUniqueId(currentExamData);
+            const submissionKey = `${examUniqueId}_${studentName.toLowerCase()}`;
             submissionsData[submissionKey] = {
                 name: studentName,
                 score: correct,
@@ -4421,5 +4445,3 @@
     </script>
 </body>
 </html>
-
-
