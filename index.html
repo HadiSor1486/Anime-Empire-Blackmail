@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arabic by Rolla</title>
-    <meta name="description" content="Create engaging Quiz.">
+    <meta name="description" content="Engaging Arabic language quizzes">
     
     <!-- LZ-String for URL compression -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
@@ -2531,12 +2531,38 @@
         }
         
         function testSpeech(index) {
-            const word = document.getElementById(`examLQWord-${index}`)?.value || '';
+            const input = document.getElementById(`examLQWord-${index}`);
+            const word = input?.value?.trim() || '';
             if (!word) {
                 alert('Please enter a word first');
                 return;
             }
-            speakWord(word);
+            // Directly use speechSynthesis to ensure it works
+            if ('speechSynthesis' in window) {
+                speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(word);
+                utterance.lang = 'ar-SA';
+                utterance.rate = 0.8;
+                
+                // Get voices and try to find Arabic
+                const voices = speechSynthesis.getVoices();
+                const arabicVoice = voices.find(v => v.lang.startsWith('ar'));
+                if (arabicVoice) utterance.voice = arabicVoice;
+                
+                // If voices not loaded yet, wait for them
+                if (voices.length === 0) {
+                    speechSynthesis.onvoiceschanged = function() {
+                        const loadedVoices = speechSynthesis.getVoices();
+                        const arabic = loadedVoices.find(v => v.lang.startsWith('ar'));
+                        if (arabic) utterance.voice = arabic;
+                        speechSynthesis.speak(utterance);
+                    };
+                } else {
+                    speechSynthesis.speak(utterance);
+                }
+            } else {
+                alert('Text-to-speech is not supported in your browser');
+            }
         }
         
         // Store loaded voices globally for admin panel
@@ -4392,5 +4418,3 @@
     </script>
 </body>
 </html>
-
-
