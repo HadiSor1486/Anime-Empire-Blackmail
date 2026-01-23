@@ -2539,24 +2539,52 @@
             speakWord(word);
         }
         
+        // Store loaded voices globally for admin panel
+        let adminSpeechVoices = [];
+        
+        function loadVoicesAndSpeak(word) {
+            const voices = speechSynthesis.getVoices();
+            if (voices.length > 0) {
+                adminSpeechVoices = voices;
+                doSpeak(word);
+            } else {
+                // Wait for voices to load
+                speechSynthesis.onvoiceschanged = function() {
+                    adminSpeechVoices = speechSynthesis.getVoices();
+                    doSpeak(word);
+                };
+            }
+        }
+        
+        function doSpeak(word) {
+            speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(word);
+            utterance.lang = 'ar-SA';
+            utterance.rate = 0.8;
+            // Try to use Arabic voice
+            const arabicVoice = adminSpeechVoices.find(v => v.lang.startsWith('ar'));
+            if (arabicVoice) utterance.voice = arabicVoice;
+            speechSynthesis.speak(utterance);
+        }
+        
         function speakWord(word) {
             if ('speechSynthesis' in window) {
-                speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(word);
-                // Try to use Arabic voice
-                const voices = speechSynthesis.getVoices();
-                const arabicVoice = voices.find(v => v.lang.startsWith('ar')) || voices[0];
-                if (arabicVoice) utterance.voice = arabicVoice;
-                utterance.rate = 0.8;
-                speechSynthesis.speak(utterance);
+                if (adminSpeechVoices.length > 0) {
+                    doSpeak(word);
+                } else {
+                    loadVoicesAndSpeak(word);
+                }
             } else {
                 alert('Text-to-speech is not supported in your browser');
             }
         }
         
-        // Load voices when available
+        // Pre-load voices when available
         if ('speechSynthesis' in window) {
-            speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+            adminSpeechVoices = speechSynthesis.getVoices();
+            speechSynthesis.onvoiceschanged = () => {
+                adminSpeechVoices = speechSynthesis.getVoices();
+            };
         }
         
         function removeExamQ(type, index) {
@@ -3668,9 +3696,6 @@
                 correct: correctWord
             };
             
-            // Play the selected word
-            playListeningWord(questionIdx, selectedWord);
-            
             // Mark as answered
             card.classList.add('answered');
             
@@ -4367,3 +4392,4 @@
     </script>
 </body>
 </html>
+
